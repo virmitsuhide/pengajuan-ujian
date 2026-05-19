@@ -6,7 +6,8 @@ import { createClient } from '@/lib/supabase/client'
 import { usernameToEmail } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Eye, EyeOff, BookOpen } from 'lucide-react'
+import { Eye, EyeOff, BookOpen, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -46,6 +47,15 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center px-4">
+      {/* Back to home */}
+      <Link
+        href="/"
+        className="fixed top-4 left-4 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 bg-white/80 backdrop-blur-sm px-3 py-2 rounded-xl border border-gray-200 shadow-sm transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Lihat Antrian
+      </Link>
+
       <div className="w-full max-w-sm">
         {/* Logo / Brand */}
         <div className="text-center mb-8">

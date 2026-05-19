@@ -8,6 +8,24 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
+
+// Load .env.local manually (tsx tidak auto-load file ini)
+try {
+  const envFile = readFileSync(resolve(process.cwd(), '.env.local'), 'utf-8')
+  for (const line of envFile.split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) continue
+    const eqIdx = trimmed.indexOf('=')
+    if (eqIdx === -1) continue
+    const key = trimmed.slice(0, eqIdx).trim()
+    const val = trimmed.slice(eqIdx + 1).trim()
+    if (key && !process.env[key]) process.env[key] = val
+  }
+} catch {
+  // .env.local tidak ditemukan, lanjut dengan env vars yang ada
+}
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
