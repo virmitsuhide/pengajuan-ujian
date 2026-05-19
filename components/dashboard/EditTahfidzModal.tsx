@@ -9,14 +9,14 @@ import {
 import {
   getTahfidzLabel,
   getStatusLabel,
-  getPredikatLabel,
-  formatDate,
+  generateWAText,
+  cn,
 } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
-import { X, Trash2, ChevronRight } from 'lucide-react'
+import { X, Trash2, ChevronRight, Copy, Check, MessageCircle } from 'lucide-react'
 
 const PREDIKAT_OPTIONS: { value: Predikat; label: string }[] = [
   { value: 'mumtaz', label: 'Mumtaz' },
@@ -40,6 +40,8 @@ export function EditTahfidzModal({ item, onClose }: Props) {
   const [loading, setLoading] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [error, setError] = useState('')
+  const [gender, setGender] = useState<'putra' | 'putri'>('putri')
+  const [copied, setCopied] = useState(false)
 
   async function handleSave() {
     setError('')
@@ -70,6 +72,17 @@ export function EditTahfidzModal({ item, onClose }: Props) {
     } finally {
       setLoading(false)
     }
+  }
+
+  async function handleCopy() {
+    const text = generateWAText(
+      // Reflect current form values (predikat might have just been set)
+      { ...item, predikat: predikat || item.predikat, kelas: item.kelas },
+      gender
+    )
+    await navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
   }
 
   async function handleDelete() {
@@ -198,6 +211,66 @@ export function EditTahfidzModal({ item, onClose }: Props) {
             <strong>Dijadwalkan</strong> jika jadwal & penguji diisi •{' '}
             <strong>Selesai</strong> jika predikat diisi
           </div>
+
+          {/* Laporan WhatsApp — tampil jika status selesai atau predikat sudah diisi */}
+          {(item.status === 'selesai' || predikat) && item.tipe !== undefined && (
+            <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-4 h-4 text-green-700" />
+                <p className="text-sm font-semibold text-green-800">Laporan WhatsApp</p>
+              </div>
+
+              {/* Gender toggle */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-green-700 font-medium">Jenis kelamin:</span>
+                <div className="flex gap-1">
+                  {(['putri', 'putra'] as const).map((g) => (
+                    <button
+                      key={g}
+                      type="button"
+                      onClick={() => setGender(g)}
+                      className={cn(
+                        'px-3 py-1 rounded-lg text-xs font-semibold transition-all',
+                        gender === g
+                          ? 'bg-green-600 text-white'
+                          : 'bg-white text-green-700 border border-green-300'
+                      )}
+                    >
+                      {g === 'putri' ? '🧕🏻 Putri' : '🧒🏻 Putra'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Preview teks */}
+              <textarea
+                readOnly
+                value={generateWAText({ ...item, predikat: (predikat || item.predikat) as any }, gender)}
+                rows={8}
+                className="w-full rounded-xl border border-green-200 bg-white px-3 py-2.5 text-xs text-gray-700 font-mono resize-none focus:outline-none"
+              />
+
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleCopy}
+                className="w-full border-green-300 text-green-700 hover:bg-green-50 gap-2"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4 text-green-600" />
+                    Tersalin!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    Salin Teks
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">

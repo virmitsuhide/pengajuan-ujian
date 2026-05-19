@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import type { TahfidzTipe, SubmissionStatus, Predikat, Unit } from './types'
+import type { TahfidzTipe, SubmissionStatus, Predikat, Unit, TahfidzSubmission } from './types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -88,4 +88,69 @@ export function formatDate(date: string | null): string {
 
 export function usernameToEmail(username: string): string {
   return `${username}@tahfidz.internal`
+}
+
+const WA_FOOTER = `\n———————————\nInfo terkait PPDB TPAIT, SDIT, SMPIT, SMA, QULS LHI :\n\n📱 0823-1115-3344 (Admin PPDB) \n🔗 https://ppdb.lhi.sch.id\n📍Jl Karanglo, Jogoragan, Banguntapan, Bantul, D.I.Yogyakarta`
+
+export function generateWAText(
+  item: TahfidzSubmission,
+  gender: 'putra' | 'putri'
+): string {
+  const isPutri = gender === 'putri'
+  const emoji = isPutri ? '🧕🏻' : '🧒🏻'
+  const putraPutri = isPutri ? 'Putri' : 'Putra'
+  const siswaSiswi = isPutri ? 'Siswi' : 'Siswa'
+
+  if (item.tipe === '1_juz') {
+    return `[Laporan TASMI' Juz ${item.juz}]
+
+Alhamdulillah, dengan rahmat dan taufik-Nya ﷻ, telah menghafal dan melaksanakan Ujian Al Quran :
+
+Juz ${item.juz} bil ghoib,  Ananda
+
+${emoji} ${item.nama_siswa}, ${putraPutri} dari Bapak ${item.nama_ayah}
+${siswaSiswi} Kelas ${item.kelas}
+
+Kedepan insyaAllah ananda akan melanjutkan hafalannya dengan target melaksanakan ujian hafalan 3-5 juz sekali duduk.
+
+Semoga Allāh jadikan Ananda semua Ahlul Quran yang hidup sesuai tuntunan Al Quran, dan berakhlak dengan akhlak Al Quran.
+
+ونسأل الله أن يجعل القرآن رببع قلوبنا ونور صدورنا وجلاء أحزاننا وذهاب همومنا وغمومنا. اللهم آمين
+${WA_FOOTER}`
+  }
+
+  if (item.tipe === '3_juz') {
+    return `[Laporan TASMI' 3 Juz]
+
+Alhamdulillah, dengan rahmat dan taufik-Nya ﷻ, telah menghafal dan melaksanakan Ujian Al Quran
+
+📖 Tasmi' 3 Juz bil ghoib, Ananda:
+${emoji}${item.nama_siswa}
+${putraPutri} dari Bapak ${item.nama_ayah}
+${siswaSiswi} Kelas ${item.kelas}
+
+Kedepan insyaAllah Ananda akan melanjutkan hafalannya dengan target melaksanakan ujian hafalan 5-10 juz dengan Tasmi' sekali duduk.
+
+Semoga Allāh jadikan Ananda semua Ahlul Quran yang hidup sesuai tuntunan Al Quran, dan berakhlak dengan akhlak Al Quran.
+
+ونسأل الله أن يجعل القرآن رببع قلوبنا ونور صدورنا وجلاء أحزاننا وذهاب همومنا وغمومنا. اللهم آمين
+${WA_FOOTER}`
+  }
+
+  // 5_juz
+  return `[Laporan TASMI' 5 Juz]
+
+Alhamdulillah, dengan rahmat dan taufik-Nya ﷻ, telah menghafal dan melaksanakan Ujian Al Quran :
+
+Juz ${item.juz} bil ghoib,  Ananda
+
+${emoji} ${item.nama_siswa}, ${putraPutri} dari Bapak ${item.nama_ayah}
+${siswaSiswi} Kelas ${item.kelas}
+
+Kedepan insyaAllah ananda akan melanjutkan hafalannya dengan target melaksanakan ujian hafalan 10 Juz sekali duduk.
+
+Semoga Allāh jadikan Ananda semua Ahlul Quran yang hidup sesuai tuntunan Al Quran, dan berakhlak dengan akhlak Al Quran.
+
+ونسأل الله أن يجعل القرآن رببع قلوبنا ونور صدورنا وجلاء أحزاننا وذهاب همومنا وغمومنا. اللهم آمين
+${WA_FOOTER}`
 }
