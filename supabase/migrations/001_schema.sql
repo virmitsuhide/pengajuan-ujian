@@ -11,7 +11,7 @@ create table if not exists public.tahfidz_submissions (
   kelas       text not null,
   jadwal      timestamptz,
   penguji     text,
-  predikat    text check (predikat in ('mumtaz', 'jayyid_jiddan', 'maqbul', 'mengulang')),
+  predikat    text check (predikat in ('mumtaz', 'jayyid_jiddan', 'jayyid', 'maqbul', 'mengulang')),
   catatan     text,
   status      text not null default 'diajukan'
                 check (status in ('diajukan', 'dijadwalkan', 'selesai')),

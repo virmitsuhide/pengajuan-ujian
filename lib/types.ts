@@ -1,6 +1,6 @@
 export type Unit = 'SD' | 'SMP'
 export type SubmissionStatus = 'diajukan' | 'dijadwalkan' | 'selesai'
-export type Predikat = 'mumtaz' | 'jayyid_jiddan' | 'maqbul' | 'mengulang'
+export type Predikat = 'mumtaz' | 'jayyid_jiddan' | 'jayyid' | 'maqbul' | 'mengulang'
 export type TahfidzTipe = '1_juz' | '3_juz' | '5_juz'
 
 export interface TahfidzSubmission {

@@ -21,6 +21,7 @@ import { X, Trash2, ChevronRight, Copy, Check, MessageCircle } from 'lucide-reac
 const PREDIKAT_OPTIONS: { value: Predikat; label: string }[] = [
   { value: 'mumtaz', label: 'Mumtaz' },
   { value: 'jayyid_jiddan', label: 'Jayyid Jiddan' },
+  { value: 'jayyid', label: 'Jayyid' },
   { value: 'maqbul', label: 'Maqbul' },
   { value: 'mengulang', label: 'Mengulang' },
 ]

@@ -46,6 +46,8 @@ export function getPredikatLabel(predikat: Predikat | null): string {
       return 'Mumtaz'
     case 'jayyid_jiddan':
       return 'Jayyid Jiddan'
+    case 'jayyid':
+      return 'Jayyid'
     case 'maqbul':
       return 'Maqbul'
     case 'mengulang':
@@ -59,6 +61,8 @@ export function getPredikatColor(predikat: Predikat | null): string {
       return 'text-emerald-700 font-semibold'
     case 'jayyid_jiddan':
       return 'text-blue-700 font-semibold'
+    case 'jayyid':
+      return 'text-sky-700 font-semibold'
     case 'maqbul':
       return 'text-amber-700 font-semibold'
     case 'mengulang':
