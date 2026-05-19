@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import type { TahfidzSubmission, TahsinSubmission, Unit } from '@/lib/types'
 import {
   getTahfidzLabel,
@@ -11,8 +11,9 @@ import {
   formatDate,
   cn,
 } from '@/lib/utils'
+import { exportRekapExcel } from '@/lib/export'
 import { Badge } from '@/components/ui/Badge'
-import { BookOpen, Clipboard, ChevronDown, ChevronUp, Users, Trophy } from 'lucide-react'
+import { BookOpen, Clipboard, ChevronDown, ChevronUp, Users, Trophy, FileSpreadsheet } from 'lucide-react'
 
 const MONTHS = [
   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -104,6 +105,17 @@ export function RekapClient({ tahfidz, tahsin, month, year }: Props) {
           </select>
         </div>
       </div>
+
+      {/* Export button */}
+      {totalSelesai > 0 && (
+        <button
+          onClick={() => exportRekapExcel(tahfidz, tahsin, month, year)}
+          className="flex items-center justify-center gap-2 w-full rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-700 text-sm font-semibold py-2.5 hover:bg-emerald-100 transition-colors"
+        >
+          <FileSpreadsheet className="w-4 h-4" />
+          Export Excel
+        </button>
+      )}
 
       {/* Summary stats */}
       {totalSelesai > 0 && (
