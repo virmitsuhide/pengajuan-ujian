@@ -1,65 +1,82 @@
-import Image from "next/image";
+import { createClient } from '@/lib/supabase/server'
+import { QueueTabs } from '@/components/public/QueueTabs'
+import type { TahfidzSubmission, TahsinSubmission } from '@/lib/types'
+import Link from 'next/link'
 
-export default function Home() {
+export const revalidate = 60
+
+export default async function PublicQueuePage() {
+  const supabase = await createClient()
+
+  const [{ data: tahfidzData }, { data: tahsinData }] = await Promise.all([
+    supabase
+      .from('tahfidz_submissions')
+      .select('*')
+      .in('status', ['diajukan', 'dijadwalkan'])
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('tahsin_submissions')
+      .select('*')
+      .in('status', ['diajukan', 'dijadwalkan'])
+      .order('created_at', { ascending: true }),
+  ])
+
+  const tahfidz = (tahfidzData ?? []) as TahfidzSubmission[]
+  const tahsin = (tahsinData ?? []) as TahsinSubmission[]
+
+  function partitionBySchedule<T extends { status: string; unit: string }>(
+    items: T[],
+    unit: 'SD' | 'SMP'
+  ) {
+    const unitItems = items.filter((i) => i.unit === unit)
+    return {
+      unscheduled: unitItems.filter((i) => i.status === 'diajukan'),
+      scheduled: unitItems.filter((i) => i.status === 'dijadwalkan'),
+    }
+  }
+
+  const queueData = {
+    tahfidz: {
+      sd: partitionBySchedule(tahfidz, 'SD'),
+      smp: partitionBySchedule(tahfidz, 'SMP'),
+    },
+    tahsin: {
+      sd: partitionBySchedule(tahsin, 'SD'),
+      smp: partitionBySchedule(tahsin, 'SMP'),
+    },
+  }
+
+  const totalAntrian = tahfidz.length + tahsin.length
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-lg font-bold text-gray-900">Antrian Ujian</h1>
+            <p className="text-xs text-gray-500">Tahsin & Tahfidz</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+              {totalAntrian} antrian aktif
+            </span>
+            <Link
+              href="/login"
+              className="text-sm text-gray-500 hover:text-gray-700 font-medium"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              Koordinator
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      </header>
+
+      <main className="max-w-2xl mx-auto px-4 py-6">
+        <QueueTabs {...queueData} />
       </main>
+
+      <footer className="text-center text-xs text-gray-400 pb-8 mt-4">
+        Sistem Manajemen Ujian Tahsin & Tahfidz
+      </footer>
     </div>
-  );
+  )
 }
