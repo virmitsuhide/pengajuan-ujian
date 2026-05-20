@@ -38,6 +38,7 @@ export function EditTahfidzModal({ item, onClose }: Props) {
   const [penguji, setPenguji] = useState(item.penguji ?? '')
   const [predikat, setPredikat] = useState<Predikat | ''>(item.predikat ?? '')
   const [catatan, setCatatan] = useState(item.catatan ?? '')
+  const [isQuls, setIsQuls] = useState(item.is_quls)
   const [loading, setLoading] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [error, setError] = useState('')
@@ -62,6 +63,7 @@ export function EditTahfidzModal({ item, onClose }: Props) {
         predikat: predikat || null,
         catatan: catatan || null,
         status: newStatus,
+        is_quls: isQuls,
       })
 
       if (result?.error) {
@@ -77,8 +79,8 @@ export function EditTahfidzModal({ item, onClose }: Props) {
 
   async function handleCopy() {
     const text = generateWAText(
-      // Reflect current form values (predikat might have just been set)
-      { ...item, predikat: predikat || item.predikat, kelas: item.kelas },
+      // Reflect current form values (predikat & is_quls might have just changed)
+      { ...item, predikat: predikat || item.predikat, kelas: item.kelas, is_quls: isQuls },
       gender
     )
     await navigator.clipboard.writeText(text)
@@ -197,6 +199,20 @@ export function EditTahfidzModal({ item, onClose }: Props) {
               ))}
             </Select>
 
+            {/* QULS toggle */}
+            <label className="flex items-center gap-3 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={isQuls}
+                onChange={(e) => setIsQuls(e.target.checked)}
+                className="w-4 h-4 rounded accent-indigo-600"
+              />
+              <div>
+                <span className="text-sm font-semibold text-indigo-800">Program QULS</span>
+                <p className="text-xs text-indigo-500 mt-0.5">Centang jika siswa ini termasuk program QULS</p>
+              </div>
+            </label>
+
             <Textarea
               id="catatan"
               label="Catatan (opsional)"
@@ -246,7 +262,7 @@ export function EditTahfidzModal({ item, onClose }: Props) {
               {/* Preview teks */}
               <textarea
                 readOnly
-                value={generateWAText({ ...item, predikat: (predikat || item.predikat) as any }, gender)}
+                value={generateWAText({ ...item, predikat: (predikat || item.predikat) as any, is_quls: isQuls }, gender)}
                 rows={8}
                 className="w-full rounded-xl border border-green-200 bg-white px-3 py-2.5 text-xs text-gray-700 font-mono resize-none focus:outline-none"
               />

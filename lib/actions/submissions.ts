@@ -13,6 +13,7 @@ export async function createTahfidzSubmission(data: {
   nama_siswa: string
   nama_ayah: string
   kelas: string
+  is_quls: boolean
 }) {
   const supabase = await createClient()
   const profile = await getUserProfile()
@@ -25,6 +26,7 @@ export async function createTahfidzSubmission(data: {
     nama_siswa: data.nama_siswa,
     nama_ayah: data.nama_ayah,
     kelas: data.kelas,
+    is_quls: data.is_quls,
     status: 'diajukan',
     created_by: profile.id,
   })
@@ -44,6 +46,7 @@ export async function updateTahfidzSubmission(
     predikat?: Predikat | null
     catatan?: string | null
     status?: SubmissionStatus
+    is_quls?: boolean
   }
 ) {
   const supabase = await createClient()

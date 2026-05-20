@@ -18,6 +18,7 @@ export function TahfidzForm({ unit }: { unit: Unit }) {
   const [namaSiswa, setNamaSiswa] = useState('')
   const [namaAyah, setNamaAyah] = useState('')
   const [kelas, setKelas] = useState('')
+  const [isQuls, setIsQuls] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -40,6 +41,7 @@ export function TahfidzForm({ unit }: { unit: Unit }) {
         nama_siswa: namaSiswa.trim(),
         nama_ayah: namaAyah.trim(),
         kelas: kelas.trim(),
+        is_quls: isQuls,
       })
 
       if (result?.error) {
@@ -129,6 +131,20 @@ export function TahfidzForm({ unit }: { unit: Unit }) {
         onChange={(e) => setKelas(e.target.value)}
         required
       />
+
+      {/* QULS */}
+      <label className="flex items-center gap-3 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={isQuls}
+          onChange={(e) => setIsQuls(e.target.checked)}
+          className="w-4 h-4 rounded accent-indigo-600"
+        />
+        <div>
+          <span className="text-sm font-semibold text-indigo-800">Program QULS</span>
+          <p className="text-xs text-indigo-500 mt-0.5">Centang jika siswa ini termasuk program QULS</p>
+        </div>
+      </label>
 
       {/* Unit info */}
       <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-600">

@@ -11,6 +11,7 @@ export interface TahfidzSubmission {
   nama_siswa: string
   nama_ayah: string
   kelas: string
+  is_quls: boolean
   jadwal: string | null
   penguji: string | null
   predikat: Predikat | null
