@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
-import { X, Trash2, ChevronRight, Copy, Check, MessageCircle } from 'lucide-react'
+import { X, Trash2, ChevronRight, Copy, Check, MessageCircle, CalendarX } from 'lucide-react'
 
 const PREDIKAT_OPTIONS: { value: Predikat; label: string }[] = [
   { value: 'mumtaz', label: 'Mumtaz' },
@@ -36,11 +36,13 @@ export function EditTahfidzModal({ item, onClose }: Props) {
     item.jadwal ? new Date(item.jadwal).toISOString().slice(0, 16) : ''
   )
   const [penguji, setPenguji] = useState(item.penguji ?? '')
+  const [namaAyah, setNamaAyah] = useState(item.nama_ayah)
   const [predikat, setPredikat] = useState<Predikat | ''>(item.predikat ?? '')
   const [catatan, setCatatan] = useState(item.catatan ?? '')
   const [isQuls, setIsQuls] = useState(item.is_quls)
   const [loading, setLoading] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [cancelConfirm, setCancelConfirm] = useState(false)
   const [error, setError] = useState('')
   const [gender, setGender] = useState<'putra' | 'putri'>('putri')
   const [copied, setCopied] = useState(false)
@@ -62,6 +64,7 @@ export function EditTahfidzModal({ item, onClose }: Props) {
         penguji: penguji || null,
         predikat: predikat || null,
         catatan: catatan || null,
+        nama_ayah: namaAyah,
         status: newStatus,
         is_quls: isQuls,
       })
@@ -71,6 +74,25 @@ export function EditTahfidzModal({ item, onClose }: Props) {
         return
       }
 
+      onClose()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleCancelSchedule() {
+    setLoading(true)
+    setError('')
+    try {
+      const result = await updateTahfidzSubmission(item.id, {
+        jadwal: null,
+        penguji: null,
+        status: 'diajukan',
+      })
+      if (result?.error) {
+        setError(result.error)
+        return
+      }
       onClose()
     } finally {
       setLoading(false)
@@ -183,6 +205,14 @@ export function EditTahfidzModal({ item, onClose }: Props) {
               placeholder="Nama penguji"
               value={penguji}
               onChange={(e) => setPenguji(e.target.value)}
+            />
+
+            <Input
+              id="nama_ayah"
+              label="Nama Ayah"
+              placeholder="Nama lengkap ayah"
+              value={namaAyah}
+              onChange={(e) => setNamaAyah(e.target.value)}
             />
 
             <Select
@@ -314,6 +344,45 @@ export function EditTahfidzModal({ item, onClose }: Props) {
               Simpan
             </Button>
           </div>
+
+          {/* Batalkan Jadwal — hanya tampil saat status dijadwalkan */}
+          {item.status === 'dijadwalkan' && (
+            !cancelConfirm ? (
+              <button
+                onClick={() => setCancelConfirm(true)}
+                className="flex items-center justify-center gap-1.5 text-sm text-orange-500 hover:text-orange-700 py-1"
+                disabled={loading}
+              >
+                <CalendarX className="w-4 h-4" />
+                Batalkan jadwal ujian
+              </button>
+            ) : (
+              <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 flex flex-col gap-2">
+                <p className="text-sm text-orange-800 font-medium text-center">
+                  Batalkan jadwal? Status akan kembali ke <strong>Diajukan</strong>.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => setCancelConfirm(false)}
+                  >
+                    Tidak
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="flex-1 border-orange-300 text-orange-700 hover:bg-orange-50"
+                    onClick={handleCancelSchedule}
+                    loading={loading}
+                  >
+                    Ya, Batalkan
+                  </Button>
+                </div>
+              </div>
+            )
+          )}
 
           {/* Delete */}
           {!deleteConfirm ? (

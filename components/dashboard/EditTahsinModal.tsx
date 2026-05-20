@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
-import { X, Trash2, ChevronRight } from 'lucide-react'
+import { X, Trash2, ChevronRight, CalendarX } from 'lucide-react'
 
 interface Props {
   item: TahsinSubmission
@@ -27,6 +27,7 @@ export function EditTahsinModal({ item, onClose }: Props) {
   const [catatan, setCatatan] = useState(item.catatan ?? '')
   const [loading, setLoading] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [cancelConfirm, setCancelConfirm] = useState(false)
   const [error, setError] = useState('')
 
   function updatePredikat(index: number, predikat: SiswaItem['predikat']) {
@@ -61,6 +62,25 @@ export function EditTahsinModal({ item, onClose }: Props) {
         return
       }
 
+      onClose()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleCancelSchedule() {
+    setLoading(true)
+    setError('')
+    try {
+      const result = await updateTahsinSubmission(item.id, {
+        jadwal: null,
+        penguji: null,
+        status: 'diajukan',
+      })
+      if (result?.error) {
+        setError(result.error)
+        return
+      }
       onClose()
     } finally {
       setLoading(false)
@@ -221,6 +241,45 @@ export function EditTahsinModal({ item, onClose }: Props) {
               Simpan
             </Button>
           </div>
+
+          {/* Batalkan Jadwal — hanya tampil saat status dijadwalkan */}
+          {item.status === 'dijadwalkan' && (
+            !cancelConfirm ? (
+              <button
+                onClick={() => setCancelConfirm(true)}
+                className="flex items-center justify-center gap-1.5 text-sm text-orange-500 hover:text-orange-700 py-1"
+                disabled={loading}
+              >
+                <CalendarX className="w-4 h-4" />
+                Batalkan jadwal ujian
+              </button>
+            ) : (
+              <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 flex flex-col gap-2">
+                <p className="text-sm text-orange-800 font-medium text-center">
+                  Batalkan jadwal? Status akan kembali ke <strong>Diajukan</strong>.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => setCancelConfirm(false)}
+                  >
+                    Tidak
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="flex-1 border-orange-300 text-orange-700 hover:bg-orange-50"
+                    onClick={handleCancelSchedule}
+                    loading={loading}
+                  >
+                    Ya, Batalkan
+                  </Button>
+                </div>
+              </div>
+            )
+          )}
 
           {!deleteConfirm ? (
             <button

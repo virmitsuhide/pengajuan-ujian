@@ -45,6 +45,7 @@ export async function updateTahfidzSubmission(
     penguji?: string | null
     predikat?: Predikat | null
     catatan?: string | null
+    nama_ayah?: string
     status?: SubmissionStatus
     is_quls?: boolean
   }
