@@ -96,6 +96,11 @@ export function usernameToEmail(username: string): string {
 
 const WA_FOOTER = `\n———————————\nInfo terkait PPDB TPAIT, SDIT, SMPIT, SMA, QULS LHI :\n\n📱 0823-1115-3344 (Admin PPDB) \n🔗 https://ppdb.lhi.sch.id\n📍Jl Karanglo, Jogoragan, Banguntapan, Bantul, D.I.Yogyakarta`
 
+const UNIT_FULL_NAME: Record<Unit, string> = {
+  SD: 'SDIT LHI Banguntapan',
+  SMP: 'SMPIT LHI Banguntapan',
+}
+
 export function generateWAText(
   item: TahfidzSubmission,
   gender: 'putra' | 'putri'
@@ -104,6 +109,8 @@ export function generateWAText(
   const emoji = isPutri ? '🧕🏻' : '🧒🏻'
   const putraPutri = isPutri ? 'Putri' : 'Putra'
   const siswaSiswi = isPutri ? 'Siswi' : 'Siswa'
+  const unitName = UNIT_FULL_NAME[item.unit]
+  const kelasLine = `${siswaSiswi} Kelas ${item.kelas}${item.is_quls ? ' QULS' : ''} ${unitName}`
 
   if (item.tipe === '1_juz') {
     return `[Laporan TASMI' Juz ${item.juz}]
@@ -113,7 +120,7 @@ Alhamdulillah, dengan rahmat dan taufik-Nya ﷻ, telah menghafal dan melaksanaka
 Juz ${item.juz} bil ghoib,  Ananda
 
 ${emoji} ${item.nama_siswa}, ${putraPutri} dari Bapak ${item.nama_ayah}
-${siswaSiswi} Kelas ${item.kelas}
+${kelasLine}
 
 Kedepan insyaAllah ananda akan melanjutkan hafalannya dengan target melaksanakan ujian hafalan 3-5 juz sekali duduk.
 
@@ -131,7 +138,7 @@ Alhamdulillah, dengan rahmat dan taufik-Nya ﷻ, telah menghafal dan melaksanaka
 📖 Tasmi' 3 Juz bil ghoib, Ananda:
 ${emoji}${item.nama_siswa}
 ${putraPutri} dari Bapak ${item.nama_ayah}
-${siswaSiswi} Kelas ${item.kelas}
+${kelasLine}
 
 Kedepan insyaAllah Ananda akan melanjutkan hafalannya dengan target melaksanakan ujian hafalan 5-10 juz dengan Tasmi' sekali duduk.
 
@@ -149,7 +156,7 @@ Alhamdulillah, dengan rahmat dan taufik-Nya ﷻ, telah menghafal dan melaksanaka
 Juz ${item.juz} bil ghoib,  Ananda
 
 ${emoji} ${item.nama_siswa}, ${putraPutri} dari Bapak ${item.nama_ayah}
-${siswaSiswi} Kelas ${item.kelas}
+${kelasLine}
 
 Kedepan insyaAllah ananda akan melanjutkan hafalannya dengan target melaksanakan ujian hafalan 10 Juz sekali duduk.
 
