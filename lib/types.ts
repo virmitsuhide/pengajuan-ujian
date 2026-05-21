@@ -1,4 +1,5 @@
 export type Unit = 'SD' | 'SMP'
+export type Role = 'koordinator' | 'guru'
 export type SubmissionStatus = 'diajukan' | 'dijadwalkan' | 'selesai'
 export type Predikat = 'mumtaz' | 'jayyid_jiddan' | 'jayyid' | 'maqbul' | 'mengulang'
 export type TahfidzTipe = '1_juz' | '3_juz' | '5_juz'
@@ -47,4 +48,12 @@ export interface UserProfile {
   id: string
   username: string
   unit: Unit
+  role: Role
+}
+
+export interface GuruAccount {
+  id: string
+  username: string
+  unit: Unit
+  created_at: string
 }

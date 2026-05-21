@@ -40,5 +40,6 @@ export async function getUserProfile() {
     id: user.id,
     username: user.app_metadata?.username as string,
     unit: user.app_metadata?.unit as 'SD' | 'SMP',
+    role: (user.app_metadata?.role ?? 'koordinator') as 'koordinator' | 'guru',
   }
 }

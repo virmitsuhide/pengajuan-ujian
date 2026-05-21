@@ -8,6 +8,11 @@ import { Input } from '@/components/ui/Input'
 import type { SiswaItem, Unit } from '@/lib/types'
 import { Plus, Trash2 } from 'lucide-react'
 
+const TAHSIN_LEVELS: Record<Unit, string[]> = {
+  SD: ['Jilid 1', 'Jilid 2', 'Jilid 3', 'Jilid 4', 'Jilid 5', 'Jilid 6', "Al-Qur'an", 'Gharib', 'Tajwid'],
+  SMP: ['Jilid 1', 'Jilid 2', 'Jilid 3', 'Jilid 4', 'Jilid 5'],
+}
+
 export function TahsinForm({ unit }: { unit: Unit }) {
   const router = useRouter()
   const [namaKelompok, setNamaKelompok] = useState('')
@@ -79,14 +84,23 @@ export function TahsinForm({ unit }: { unit: Unit }) {
         required
       />
 
-      <Input
-        id="level"
-        label="Level"
-        placeholder="Contoh: Jilid 3, Al-Qur'an, Gharib, Tajwid"
-        value={level}
-        onChange={(e) => setLevel(e.target.value)}
-        required
-      />
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="level" className="text-sm font-medium text-gray-700">
+          Level <span className="text-red-500">*</span>
+        </label>
+        <select
+          id="level"
+          value={level}
+          onChange={(e) => setLevel(e.target.value)}
+          required
+          className="rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+        >
+          <option value="" disabled>Pilih level...</option>
+          {TAHSIN_LEVELS[unit].map((lvl) => (
+            <option key={lvl} value={lvl}>{lvl}</option>
+          ))}
+        </select>
+      </div>
 
       {/* Dynamic siswa list */}
       <div>

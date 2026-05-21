@@ -12,16 +12,26 @@ import {
   ListChecks,
   LogOut,
   BookOpen,
+  Users,
 } from 'lucide-react'
 
-const navLinks = [
-  { href: '/dashboard', label: 'Ringkasan', icon: LayoutDashboard, exact: true },
-  { href: '/dashboard/submit', label: 'Ajukan', icon: PlusCircle, exact: false },
-  { href: '/dashboard/submissions', label: 'Kelola', icon: ListChecks, exact: false },
-]
-
-export function DashboardNav({ profile }: { profile: UserProfile }) {
+export function DashboardNav({ profile, unseenCount }: { profile: UserProfile; unseenCount: number }) {
   const pathname = usePathname()
+  const isKoordinator = profile.role === 'koordinator'
+
+  const navLinks = [
+    { href: '/dashboard', label: 'Ringkasan', icon: LayoutDashboard, exact: true },
+    { href: '/dashboard/submit', label: 'Ajukan', icon: PlusCircle, exact: false },
+    { href: '/dashboard/submissions', label: 'Kelola', icon: ListChecks, exact: false },
+    ...(isKoordinator
+      ? [{ href: '/dashboard/guru', label: 'Guru', icon: Users, exact: false }]
+      : []),
+  ]
+
+  const roleLabel = isKoordinator ? `Koordinator ${profile.unit}` : `Guru ${profile.unit}`
+  const roleBadgeClass = isKoordinator
+    ? getUnitColor(profile.unit)
+    : 'bg-violet-100 text-violet-800 border border-violet-200'
 
   return (
     <>
@@ -34,9 +44,7 @@ export function DashboardNav({ profile }: { profile: UserProfile }) {
             </div>
             <div>
               <p className="text-sm font-semibold text-gray-900">{profile.username}</p>
-              <Badge className={cn('text-xs', getUnitColor(profile.unit))}>
-                Koordinator {profile.unit}
-              </Badge>
+              <Badge className={cn('text-xs', roleBadgeClass)}>{roleLabel}</Badge>
             </div>
           </div>
           <form action={signOut}>
@@ -56,6 +64,7 @@ export function DashboardNav({ profile }: { profile: UserProfile }) {
         <div className="flex">
           {navLinks.map(({ href, label, icon: Icon, exact }) => {
             const active = exact ? pathname === href : pathname.startsWith(href)
+            const showBadge = href === '/dashboard/submissions' && unseenCount > 0
             return (
               <Link
                 key={href}
@@ -65,7 +74,14 @@ export function DashboardNav({ profile }: { profile: UserProfile }) {
                   active ? 'text-emerald-600' : 'text-gray-400'
                 )}
               >
-                <Icon className="w-5 h-5" />
+                <span className="relative">
+                  <Icon className="w-5 h-5" />
+                  {showBadge && (
+                    <span className="absolute -top-1 -right-1.5 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5">
+                      {unseenCount > 99 ? '99+' : unseenCount}
+                    </span>
+                  )}
+                </span>
                 {label}
               </Link>
             )
@@ -78,6 +94,7 @@ export function DashboardNav({ profile }: { profile: UserProfile }) {
         <div className="max-w-2xl mx-auto px-4 flex gap-1">
           {navLinks.map(({ href, label, icon: Icon, exact }) => {
             const active = exact ? pathname === href : pathname.startsWith(href)
+            const showBadge = href === '/dashboard/submissions' && unseenCount > 0
             return (
               <Link
                 key={href}
@@ -91,6 +108,11 @@ export function DashboardNav({ profile }: { profile: UserProfile }) {
               >
                 <Icon className="w-4 h-4" />
                 {label}
+                {showBadge && (
+                  <span className="min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+                    {unseenCount > 99 ? '99+' : unseenCount}
+                  </span>
+                )}
               </Link>
             )
           })}

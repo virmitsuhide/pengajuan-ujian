@@ -1,14 +1,17 @@
 import { createClient } from '@/lib/supabase/server'
 import { getUserProfile } from '@/lib/actions/auth'
+import { getUnseenCount } from '@/lib/actions/notifications'
 import Link from 'next/link'
 import { getStatusColor, getStatusLabel } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
-import { PlusCircle, ListChecks, ExternalLink, CheckCircle2, Clock, Calendar } from 'lucide-react'
+import { PlusCircle, ListChecks, ExternalLink, CheckCircle2, Clock, Calendar, Users } from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   const profile = await getUserProfile()
   if (!profile) return null
+
+  const unseenCount = profile.role === 'koordinator' ? await getUnseenCount() : 0
 
   const [{ data: tfData }, { data: tsData }] = await Promise.all([
     supabase
@@ -66,14 +69,20 @@ export default async function DashboardPage() {
     },
   ]
 
+  const isKoordinator = profile.role === 'koordinator'
+
   return (
     <div className="pb-24 sm:pb-6 flex flex-col gap-6">
       {/* Welcome */}
       <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-5 text-white">
         <p className="text-emerald-100 text-sm">Selamat datang,</p>
-        <h1 className="text-xl font-bold mt-0.5">Koordinator {profile.unit}</h1>
+        <h1 className="text-xl font-bold mt-0.5">
+          {isKoordinator ? 'Koordinator' : 'Guru'} {profile.unit}
+        </h1>
         <p className="text-emerald-100 text-sm mt-3">
-          Kelola pengajuan ujian Tahsin & Tahfidz untuk unit {profile.unit}
+          {isKoordinator
+            ? `Kelola pengajuan ujian Tahsin & Tahfidz untuk unit ${profile.unit}`
+            : `Ajukan ujian Tahsin & Tahfidz untuk unit ${profile.unit}`}
         </p>
       </div>
 
@@ -93,7 +102,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Quick actions */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className={`grid gap-3 ${isKoordinator ? 'grid-cols-3' : 'grid-cols-2'}`}>
         <Link
           href="/dashboard/submit"
           className="bg-emerald-600 text-white rounded-2xl p-4 flex flex-col gap-2 hover:bg-emerald-700 transition-colors shadow-sm"
@@ -104,12 +113,29 @@ export default async function DashboardPage() {
         </Link>
         <Link
           href="/dashboard/submissions"
-          className="bg-white border border-gray-200 text-gray-700 rounded-2xl p-4 flex flex-col gap-2 hover:border-gray-300 hover:bg-gray-50 transition-colors shadow-sm"
+          className="bg-blue-50 border border-blue-200 text-blue-700 rounded-2xl p-4 flex flex-col gap-2 hover:bg-blue-100 hover:border-blue-300 transition-colors shadow-sm relative"
         >
-          <ListChecks className="w-6 h-6 text-gray-500" />
+          <div className="flex items-center justify-between">
+            <ListChecks className="w-6 h-6 text-blue-500" />
+            {unseenCount > 0 && (
+              <span className="min-w-[20px] h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
+                {unseenCount > 99 ? '99+' : unseenCount}
+              </span>
+            )}
+          </div>
           <p className="font-semibold">Kelola</p>
-          <p className="text-xs text-gray-400">Semua pengajuan</p>
+          <p className="text-xs text-blue-400">Semua pengajuan</p>
         </Link>
+        {isKoordinator && (
+          <Link
+            href="/dashboard/guru"
+            className="bg-violet-50 border border-violet-200 text-violet-700 rounded-2xl p-4 flex flex-col gap-2 hover:bg-violet-100 hover:border-violet-300 transition-colors shadow-sm"
+          >
+            <Users className="w-6 h-6 text-violet-500" />
+            <p className="font-semibold">Guru</p>
+            <p className="text-xs text-violet-400">Kelola akun</p>
+          </Link>
+        )}
       </div>
 
       {/* Recent Tahfidz */}
