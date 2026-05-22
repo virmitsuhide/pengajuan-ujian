@@ -4,6 +4,7 @@ import { getUnseenCount } from '@/lib/actions/notifications'
 import Link from 'next/link'
 import { getStatusColor, getStatusLabel } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
+import { ExamCalendar, type CalendarEvent } from '@/components/dashboard/ExamCalendar'
 import { PlusCircle, ListChecks, ExternalLink, CheckCircle2, Clock, Calendar, Users } from 'lucide-react'
 
 export default async function DashboardPage() {
@@ -12,6 +13,18 @@ export default async function DashboardPage() {
   if (!profile) return null
 
   const unseenCount = profile.role === 'koordinator' ? await getUnseenCount() : 0
+
+  // Compute current month in WIB (UTC+7) for calendar
+  const wibFmt = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Jakarta' })
+  const todayWIB = wibFmt.format(new Date())  // YYYY-MM-DD
+  const [wibYear, wibMonthNum] = todayWIB.split('-').map(Number)
+  const calYear = wibYear
+  const calMonth = wibMonthNum - 1  // 0-indexed
+
+  const nextCalYear = calMonth === 11 ? calYear + 1 : calYear
+  const nextCalMonthNum = calMonth === 11 ? 1 : wibMonthNum + 1
+  const monthStart = `${wibYear}-${String(wibMonthNum).padStart(2, '0')}-01T00:00:00+07:00`
+  const monthEnd = `${nextCalYear}-${String(nextCalMonthNum).padStart(2, '0')}-01T00:00:00+07:00`
 
   const [{ data: tfData }, { data: tsData }] = await Promise.all([
     supabase
@@ -27,6 +40,36 @@ export default async function DashboardPage() {
       .order('created_at', { ascending: false })
       .limit(5),
   ])
+
+  const [{ data: calTf }, { data: calTs }] = await Promise.all([
+    supabase
+      .from('tahfidz_submissions')
+      .select('jadwal, nama_siswa')
+      .eq('unit', profile.unit)
+      .eq('status', 'dijadwalkan')
+      .gte('jadwal', monthStart)
+      .lt('jadwal', monthEnd),
+    supabase
+      .from('tahsin_submissions')
+      .select('jadwal, nama_kelompok')
+      .eq('unit', profile.unit)
+      .eq('status', 'dijadwalkan')
+      .gte('jadwal', monthStart)
+      .lt('jadwal', monthEnd),
+  ])
+
+  const calendarEvents: CalendarEvent[] = [
+    ...(calTf ?? []).filter(t => t.jadwal).map(t => ({
+      date: wibFmt.format(new Date(t.jadwal!)),
+      name: t.nama_siswa,
+      type: 'tahfidz' as const,
+    })),
+    ...(calTs ?? []).filter(t => t.jadwal).map(t => ({
+      date: wibFmt.format(new Date(t.jadwal!)),
+      name: t.nama_kelompok,
+      type: 'tahsin' as const,
+    })),
+  ]
 
   const [{ count: tfTotal }, { count: tsTotal }, { count: tfDone }, { count: tsDone }, { count: tfScheduled }, { count: tsScheduled }] =
     await Promise.all([
@@ -137,6 +180,14 @@ export default async function DashboardPage() {
           </Link>
         )}
       </div>
+
+      {/* Exam Calendar */}
+      <ExamCalendar
+        events={calendarEvents}
+        year={calYear}
+        month={calMonth}
+        todayWIB={todayWIB}
+      />
 
       {/* Recent Tahfidz */}
       {(tfData?.length ?? 0) > 0 && (

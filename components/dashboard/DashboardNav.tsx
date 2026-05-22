@@ -28,7 +28,10 @@ export function DashboardNav({ profile, unseenCount }: { profile: UserProfile; u
       : []),
   ]
 
-  const roleLabel = isKoordinator ? `Koordinator ${profile.unit}` : `Guru ${profile.unit}`
+  const guruUnitLabel = profile.unit === 'SD' ? 'SDIT LHI' : 'SMPIT LHI'
+  const roleLabel = isKoordinator
+    ? `Koordinator ${profile.unit}`
+    : `Guru Qur'an RQ unit ${guruUnitLabel}`
   const roleBadgeClass = isKoordinator
     ? getUnitColor(profile.unit)
     : 'bg-violet-100 text-violet-800 border border-violet-200'

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { getUserProfile } from '@/lib/actions/auth'
+import { getCreatorMap } from '@/lib/actions/users'
 import { SubmissionsClient } from '@/components/dashboard/SubmissionsClient'
 import { MarkSeen } from '@/components/dashboard/MarkSeen'
 import type { TahfidzSubmission, TahsinSubmission } from '@/lib/types'
@@ -24,6 +25,8 @@ export default async function SubmissionsPage() {
       .order('created_at', { ascending: false }),
   ])
 
+  const creatorMap = profile.role === 'koordinator' ? await getCreatorMap() : {}
+
   return (
     <div className="pb-24 sm:pb-6">
       {profile.role === 'koordinator' && <MarkSeen />}
@@ -39,6 +42,7 @@ export default async function SubmissionsPage() {
         tahsin={(tahsinData ?? []) as TahsinSubmission[]}
         unit={profile.unit}
         canEdit={profile.role === 'koordinator'}
+        creatorMap={creatorMap}
       />
     </div>
   )

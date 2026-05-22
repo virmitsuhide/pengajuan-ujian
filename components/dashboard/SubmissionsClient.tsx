@@ -21,6 +21,7 @@ interface Props {
   tahsin: TahsinSubmission[]
   unit: Unit
   canEdit: boolean
+  creatorMap: Record<string, string>
 }
 
 type FilterStatus = 'semua' | 'diajukan' | 'dijadwalkan' | 'selesai'
@@ -31,7 +32,16 @@ const TAHSIN_LEVELS: Record<Unit, string[]> = {
   SMP: ['Jilid 1', 'Jilid 2', 'Jilid 3', 'Jilid 4', 'Jilid 5'],
 }
 
-export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit }: Props) {
+function formatDateOnly(date: string): string {
+  return new Date(date).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'Asia/Jakarta',
+  })
+}
+
+export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit, creatorMap }: Props) {
   const [editingTahfidz, setEditingTahfidz] = useState<TahfidzSubmission | null>(null)
   const [editingTahsin, setEditingTahsin] = useState<TahsinSubmission | null>(null)
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('semua')
@@ -159,6 +169,12 @@ export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit }: Props) {
                           {item.penguji && ` · ${item.penguji}`}
                         </p>
                       )}
+                      <p className="text-xs text-gray-400 mt-1">
+                        {canEdit && creatorMap[item.created_by]
+                          ? `${creatorMap[item.created_by]} · `
+                          : ''}
+                        {formatDateOnly(item.created_at)}
+                      </p>
                     </div>
                     {canEdit && (
                       <button
@@ -229,6 +245,12 @@ export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit }: Props) {
                             {item.penguji && ` · ${item.penguji}`}
                           </p>
                         )}
+                        <p className="text-xs text-gray-400 mt-1">
+                          {canEdit && creatorMap[item.created_by]
+                            ? `${creatorMap[item.created_by]} · `
+                            : ''}
+                          {formatDateOnly(item.created_at)}
+                        </p>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
                         <button

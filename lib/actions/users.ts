@@ -65,6 +65,23 @@ export async function createGuru(data: {
   return {}
 }
 
+export async function getCreatorMap(): Promise<Record<string, string>> {
+  const profile = await requireKoordinator()
+  const admin = createAdminClient()
+  const { data, error } = await admin.auth.admin.listUsers()
+  if (error) return {}
+
+  const map: Record<string, string> = {}
+  data.users
+    .filter((u) => u.app_metadata?.unit === profile.unit)
+    .forEach((u) => {
+      if (u.app_metadata?.username) {
+        map[u.id] = u.app_metadata.username as string
+      }
+    })
+  return map
+}
+
 export async function deleteGuru(userId: string): Promise<{ error?: string }> {
   await requireKoordinator()
   const admin = createAdminClient()
