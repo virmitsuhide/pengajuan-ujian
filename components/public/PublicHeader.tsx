@@ -27,7 +27,7 @@ export function PublicHeader({ badge }: PublicHeaderProps) {
               href="/login"
               className="text-xs text-gray-400 hover:text-gray-600 font-medium border border-gray-200 rounded-lg px-2.5 py-1.5 transition-colors"
             >
-              Koordinator
+              Login
             </Link>
           </div>
         </div>

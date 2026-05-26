@@ -6,5 +6,5 @@ export default async function SubmitPage() {
   const profile = await getUserProfile()
   if (!profile) redirect('/login')
 
-  return <SubmitPageClient unit={profile.unit} />
+  return <SubmitPageClient unit={profile.unit ?? 'SD'} />
 }

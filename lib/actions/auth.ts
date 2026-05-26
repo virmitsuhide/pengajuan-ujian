@@ -36,10 +36,11 @@ export async function getUserProfile() {
 
   if (!user) return null
 
+  const role = (user.app_metadata?.role ?? 'koordinator') as 'koordinator' | 'guru' | 'admin'
   return {
     id: user.id,
     username: user.app_metadata?.username as string,
-    unit: user.app_metadata?.unit as 'SD' | 'SMP',
-    role: (user.app_metadata?.role ?? 'koordinator') as 'koordinator' | 'guru',
+    unit: role === 'admin' ? null : (user.app_metadata?.unit as 'SD' | 'SMP') ?? null,
+    role,
   }
 }

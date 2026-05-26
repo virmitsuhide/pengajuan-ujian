@@ -40,27 +40,62 @@ const supabase = createClient(url, serviceKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 })
 
+const adminUser = {
+  username: 'admin',
+  email: 'admin@tahfidz.internal',
+  password: 'adminrqlhi2025',
+  role: 'admin' as const,
+}
+
 const koordinators = [
   {
     username: 'koorsd',
     email: 'koorsd@tahfidz.internal',
     password: 'bismillah',
     unit: 'SD',
+    role: 'koordinator' as const,
   },
   {
     username: 'koorsmp',
     email: 'koorsmp@tahfidz.internal',
     password: 'alhamdulillah',
     unit: 'SMP',
+    role: 'koordinator' as const,
   },
 ]
 
 async function seedUsers() {
-  console.log('🌱  Memulai seed akun koordinator...\n')
+  console.log('🌱  Memulai seed akun...\n')
 
+  const { data: existing } = await supabase.auth.admin.listUsers()
+
+  // Seed admin
+  const adminExists = existing?.users?.some((u) => u.email === adminUser.email)
+  if (adminExists) {
+    console.log(`⏭️   ${adminUser.username} (admin) sudah ada, skip.`)
+  } else {
+    const { data, error } = await supabase.auth.admin.createUser({
+      email: adminUser.email,
+      password: adminUser.password,
+      email_confirm: true,
+      app_metadata: {
+        username: adminUser.username,
+        role: 'admin',
+      },
+    })
+    if (error) {
+      console.error(`❌  Gagal buat admin: ${error.message}`)
+    } else {
+      console.log(`✅  admin — ID: ${data.user?.id}`)
+      console.log(`    Username: ${adminUser.username}`)
+      console.log(`    Password: (tersimpan di seed-users.ts)`)
+    }
+  }
+
+  console.log()
+
+  // Seed koordinator
   for (const koor of koordinators) {
-    // Check if user already exists
-    const { data: existing } = await supabase.auth.admin.listUsers()
     const alreadyExists = existing?.users?.some((u) => u.email === koor.email)
 
     if (alreadyExists) {
@@ -76,6 +111,7 @@ async function seedUsers() {
       app_metadata: {
         username: koor.username,
         unit: koor.unit,
+        role: 'koordinator',
       },
     })
 

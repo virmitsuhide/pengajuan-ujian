@@ -62,7 +62,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <BookOpen className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Portal Koordinator</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Portal Login</h1>
           <p className="text-sm text-gray-500 mt-1">Manajemen Ujian Tahsin & Tahfidz</p>
         </div>
 
@@ -123,7 +123,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          Hanya untuk koordinator yang terdaftar
+          Untuk koordinator, guru, dan admin yang terdaftar
         </p>
       </div>
     </div>

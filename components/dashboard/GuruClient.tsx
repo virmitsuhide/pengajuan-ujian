@@ -9,15 +9,17 @@ import { useRouter } from 'next/navigation'
 
 interface Props {
   guruList: GuruAccount[]
-  unit: Unit
+  unit: Unit | null
+  isAdmin?: boolean
 }
 
-export function GuruClient({ guruList: initial, unit }: Props) {
+export function GuruClient({ guruList: initial, unit, isAdmin }: Props) {
   const router = useRouter()
   const [guruList, setGuruList] = useState(initial)
   const [showForm, setShowForm] = useState(false)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [selectedUnit, setSelectedUnit] = useState<Unit>(unit ?? 'SD')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [deleteTarget, setDeleteTarget] = useState<GuruAccount | null>(null)
@@ -26,6 +28,7 @@ export function GuruClient({ guruList: initial, unit }: Props) {
   function resetForm() {
     setUsername('')
     setPassword('')
+    setSelectedUnit(unit ?? 'SD')
     setError('')
     setShowForm(false)
     setShowPassword(false)
@@ -45,7 +48,7 @@ export function GuruClient({ guruList: initial, unit }: Props) {
     }
 
     startTransition(async () => {
-      const result = await createGuru({ username: username.trim(), password })
+      const result = await createGuru({ username: username.trim(), password, unit: selectedUnit })
       if (result.error) {
         setError(result.error)
         return
@@ -88,6 +91,19 @@ export function GuruClient({ guruList: initial, unit }: Props) {
             </button>
           </div>
           <form onSubmit={handleCreate} className="flex flex-col gap-3">
+            {isAdmin && (
+              <div>
+                <label className="text-xs font-medium text-gray-600 block mb-1">Unit</label>
+                <select
+                  value={selectedUnit}
+                  onChange={(e) => setSelectedUnit(e.target.value as Unit)}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                >
+                  <option value="SD">SD (SDIT LHI)</option>
+                  <option value="SMP">SMP (SMPIT LHI)</option>
+                </select>
+              </div>
+            )}
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1">Username</label>
               <input
@@ -97,7 +113,7 @@ export function GuruClient({ guruList: initial, unit }: Props) {
                 placeholder="Contoh: ustadz_budi"
                 className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
               />
-              <p className="text-xs text-gray-400 mt-1">Unit {unit} · login dengan username ini</p>
+              <p className="text-xs text-gray-400 mt-1">Unit {isAdmin ? selectedUnit : unit} · login dengan username ini</p>
             </div>
 
             <div>

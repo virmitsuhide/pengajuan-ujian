@@ -6,7 +6,7 @@ import { getUserProfile } from './auth'
 export async function getUnseenCount(): Promise<number> {
   const supabase = await createClient()
   const profile = await getUserProfile()
-  if (!profile || profile.role !== 'koordinator') return 0
+  if (!profile || (profile.role !== 'koordinator' && profile.role !== 'admin')) return 0
 
   const {
     data: { user },
@@ -17,18 +17,21 @@ export async function getUnseenCount(): Promise<number> {
   // Belum pernah buka halaman Kelola → mulai track dari sekarang, tampilkan 0
   if (!lastSeen) return 0
 
-  const [{ count: tfCount }, { count: tsCount }] = await Promise.all([
-    supabase
-      .from('tahfidz_submissions')
-      .select('*', { count: 'exact', head: true })
-      .eq('unit', profile.unit)
-      .gt('created_at', lastSeen),
-    supabase
-      .from('tahsin_submissions')
-      .select('*', { count: 'exact', head: true })
-      .eq('unit', profile.unit)
-      .gt('created_at', lastSeen),
-  ])
+  const tfQuery = supabase
+    .from('tahfidz_submissions')
+    .select('*', { count: 'exact', head: true })
+    .gt('created_at', lastSeen)
+  const tsQuery = supabase
+    .from('tahsin_submissions')
+    .select('*', { count: 'exact', head: true })
+    .gt('created_at', lastSeen)
+
+  if (profile.unit) {
+    tfQuery.eq('unit', profile.unit)
+    tsQuery.eq('unit', profile.unit)
+  }
+
+  const [{ count: tfCount }, { count: tsCount }] = await Promise.all([tfQuery, tsQuery])
 
   return (tfCount ?? 0) + (tsCount ?? 0)
 }

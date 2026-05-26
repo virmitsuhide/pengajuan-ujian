@@ -11,7 +11,7 @@ export default async function DashboardLayout({
   const profile = await getUserProfile()
   if (!profile) redirect('/login')
 
-  const unseenCount = profile.role === 'koordinator' ? await getUnseenCount() : 0
+  const unseenCount = (profile.role === 'koordinator' || profile.role === 'admin') ? await getUnseenCount() : 0
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

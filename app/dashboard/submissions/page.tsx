@@ -12,36 +12,32 @@ export default async function SubmissionsPage() {
 
   const supabase = await createClient()
 
-  const [{ data: tahfidzData }, { data: tahsinData }] = await Promise.all([
-    supabase
-      .from('tahfidz_submissions')
-      .select('*')
-      .eq('unit', profile.unit)
-      .order('created_at', { ascending: false }),
-    supabase
-      .from('tahsin_submissions')
-      .select('*')
-      .eq('unit', profile.unit)
-      .order('created_at', { ascending: false }),
-  ])
+  const tfQuery = supabase.from('tahfidz_submissions').select('*').order('created_at', { ascending: false })
+  const tsQuery = supabase.from('tahsin_submissions').select('*').order('created_at', { ascending: false })
+  if (profile.unit) {
+    tfQuery.eq('unit', profile.unit)
+    tsQuery.eq('unit', profile.unit)
+  }
 
-  const creatorMap = profile.role === 'koordinator' ? await getCreatorMap() : {}
+  const [{ data: tahfidzData }, { data: tahsinData }] = await Promise.all([tfQuery, tsQuery])
+
+  const creatorMap = (profile.role === 'koordinator' || profile.role === 'admin') ? await getCreatorMap() : {}
 
   return (
     <div className="pb-24 sm:pb-6">
-      {profile.role === 'koordinator' && <MarkSeen />}
+      {(profile.role === 'koordinator' || profile.role === 'admin') && <MarkSeen />}
       <div className="mb-5">
         <h1 className="text-xl font-bold text-gray-900">Kelola Pengajuan</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Unit {profile.unit} · {(tahfidzData?.length ?? 0) + (tahsinData?.length ?? 0)} total
+          {profile.unit ? `Unit ${profile.unit} · ` : 'Semua Unit · '}{(tahfidzData?.length ?? 0) + (tahsinData?.length ?? 0)} total
         </p>
       </div>
 
       <SubmissionsClient
         tahfidz={(tahfidzData ?? []) as TahfidzSubmission[]}
         tahsin={(tahsinData ?? []) as TahsinSubmission[]}
-        unit={profile.unit}
-        canEdit={profile.role === 'koordinator'}
+        unit={profile.unit ?? 'SD'}
+        canEdit={profile.role === 'koordinator' || profile.role === 'admin'}
         creatorMap={creatorMap}
       />
     </div>

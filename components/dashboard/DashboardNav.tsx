@@ -18,22 +18,30 @@ import {
 export function DashboardNav({ profile, unseenCount }: { profile: UserProfile; unseenCount: number }) {
   const pathname = usePathname()
   const isKoordinator = profile.role === 'koordinator'
+  const isAdmin = profile.role === 'admin'
 
   const navLinks = [
     { href: '/dashboard', label: 'Ringkasan', icon: LayoutDashboard, exact: true },
     { href: '/dashboard/submit', label: 'Ajukan', icon: PlusCircle, exact: false },
     { href: '/dashboard/submissions', label: 'Kelola', icon: ListChecks, exact: false },
-    ...(isKoordinator
+    ...(isKoordinator || isAdmin
       ? [{ href: '/dashboard/guru', label: 'Guru', icon: Users, exact: false }]
+      : []),
+    ...(isAdmin
+      ? [{ href: '/dashboard/koordinator', label: 'Koordinator', icon: Users, exact: false }]
       : []),
   ]
 
   const guruUnitLabel = profile.unit === 'SD' ? 'SDIT LHI' : 'SMPIT LHI'
-  const roleLabel = isKoordinator
+  const roleLabel = isAdmin
+    ? 'Administrator'
+    : isKoordinator
     ? `Koordinator ${profile.unit}`
     : `Guru Qur'an RQ unit ${guruUnitLabel}`
-  const roleBadgeClass = isKoordinator
-    ? getUnitColor(profile.unit)
+  const roleBadgeClass = isAdmin
+    ? 'bg-red-100 text-red-800 border border-red-200'
+    : isKoordinator
+    ? getUnitColor(profile.unit!)
     : 'bg-violet-100 text-violet-800 border border-violet-200'
 
   return (

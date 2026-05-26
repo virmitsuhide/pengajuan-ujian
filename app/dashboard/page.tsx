@@ -26,37 +26,41 @@ export default async function DashboardPage() {
   const monthStart = `${wibYear}-${String(wibMonthNum).padStart(2, '0')}-01T00:00:00+07:00`
   const monthEnd = `${nextCalYear}-${String(nextCalMonthNum).padStart(2, '0')}-01T00:00:00+07:00`
 
-  const [{ data: tfData }, { data: tsData }] = await Promise.all([
-    supabase
-      .from('tahfidz_submissions')
-      .select('id, nama_siswa, status, created_at')
-      .eq('unit', profile.unit)
-      .order('created_at', { ascending: false })
-      .limit(5),
-    supabase
-      .from('tahsin_submissions')
-      .select('id, nama_kelompok, status, created_at')
-      .eq('unit', profile.unit)
-      .order('created_at', { ascending: false })
-      .limit(5),
-  ])
+  const tfRecentQuery = supabase
+    .from('tahfidz_submissions')
+    .select('id, nama_siswa, status, created_at')
+    .order('created_at', { ascending: false })
+    .limit(5)
+  const tsRecentQuery = supabase
+    .from('tahsin_submissions')
+    .select('id, nama_kelompok, status, created_at')
+    .order('created_at', { ascending: false })
+    .limit(5)
+  if (profile.unit) {
+    tfRecentQuery.eq('unit', profile.unit)
+    tsRecentQuery.eq('unit', profile.unit)
+  }
 
-  const [{ data: calTf }, { data: calTs }] = await Promise.all([
-    supabase
-      .from('tahfidz_submissions')
-      .select('jadwal, nama_siswa')
-      .eq('unit', profile.unit)
-      .eq('status', 'dijadwalkan')
-      .gte('jadwal', monthStart)
-      .lt('jadwal', monthEnd),
-    supabase
-      .from('tahsin_submissions')
-      .select('jadwal, nama_kelompok')
-      .eq('unit', profile.unit)
-      .eq('status', 'dijadwalkan')
-      .gte('jadwal', monthStart)
-      .lt('jadwal', monthEnd),
-  ])
+  const [{ data: tfData }, { data: tsData }] = await Promise.all([tfRecentQuery, tsRecentQuery])
+
+  const calTfQuery = supabase
+    .from('tahfidz_submissions')
+    .select('jadwal, nama_siswa')
+    .eq('status', 'dijadwalkan')
+    .gte('jadwal', monthStart)
+    .lt('jadwal', monthEnd)
+  const calTsQuery = supabase
+    .from('tahsin_submissions')
+    .select('jadwal, nama_kelompok')
+    .eq('status', 'dijadwalkan')
+    .gte('jadwal', monthStart)
+    .lt('jadwal', monthEnd)
+  if (profile.unit) {
+    calTfQuery.eq('unit', profile.unit)
+    calTsQuery.eq('unit', profile.unit)
+  }
+
+  const [{ data: calTf }, { data: calTs }] = await Promise.all([calTfQuery, calTsQuery])
 
   const calendarEvents: CalendarEvent[] = [
     ...(calTf ?? []).filter(t => t.jadwal).map(t => ({
@@ -71,14 +75,23 @@ export default async function DashboardPage() {
     })),
   ]
 
+  const unit = profile.unit
+
+  const buildStatsQuery = (table: 'tahfidz_submissions' | 'tahsin_submissions', status?: string) => {
+    const q = supabase.from(table).select('*', { count: 'exact', head: true })
+    if (unit) q.eq('unit', unit)
+    if (status) q.eq('status', status)
+    return q
+  }
+
   const [{ count: tfTotal }, { count: tsTotal }, { count: tfDone }, { count: tsDone }, { count: tfScheduled }, { count: tsScheduled }] =
     await Promise.all([
-      supabase.from('tahfidz_submissions').select('*', { count: 'exact', head: true }).eq('unit', profile.unit),
-      supabase.from('tahsin_submissions').select('*', { count: 'exact', head: true }).eq('unit', profile.unit),
-      supabase.from('tahfidz_submissions').select('*', { count: 'exact', head: true }).eq('unit', profile.unit).eq('status', 'selesai'),
-      supabase.from('tahsin_submissions').select('*', { count: 'exact', head: true }).eq('unit', profile.unit).eq('status', 'selesai'),
-      supabase.from('tahfidz_submissions').select('*', { count: 'exact', head: true }).eq('unit', profile.unit).eq('status', 'dijadwalkan'),
-      supabase.from('tahsin_submissions').select('*', { count: 'exact', head: true }).eq('unit', profile.unit).eq('status', 'dijadwalkan'),
+      buildStatsQuery('tahfidz_submissions'),
+      buildStatsQuery('tahsin_submissions'),
+      buildStatsQuery('tahfidz_submissions', 'selesai'),
+      buildStatsQuery('tahsin_submissions', 'selesai'),
+      buildStatsQuery('tahfidz_submissions', 'dijadwalkan'),
+      buildStatsQuery('tahsin_submissions', 'dijadwalkan'),
     ])
 
   const stats = [
@@ -113,6 +126,7 @@ export default async function DashboardPage() {
   ]
 
   const isKoordinator = profile.role === 'koordinator'
+  const isAdmin = profile.role === 'admin'
 
   return (
     <div className="pb-24 sm:pb-6 flex flex-col gap-6">
@@ -120,10 +134,12 @@ export default async function DashboardPage() {
       <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-5 text-white">
         <p className="text-emerald-100 text-sm">Selamat datang,</p>
         <h1 className="text-xl font-bold mt-0.5">
-          {isKoordinator ? 'Koordinator' : 'Guru'} {profile.unit}
+          {isAdmin ? 'Administrator' : isKoordinator ? `Koordinator ${profile.unit}` : `Guru ${profile.unit}`}
         </h1>
         <p className="text-emerald-100 text-sm mt-3">
-          {isKoordinator
+          {isAdmin
+            ? 'Kelola semua pengajuan ujian Tahsin & Tahfidz SD dan SMP'
+            : isKoordinator
             ? `Kelola pengajuan ujian Tahsin & Tahfidz untuk unit ${profile.unit}`
             : `Ajukan ujian Tahsin & Tahfidz untuk unit ${profile.unit}`}
         </p>
@@ -145,7 +161,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Quick actions */}
-      <div className={`grid gap-3 ${isKoordinator ? 'grid-cols-3' : 'grid-cols-2'}`}>
+      <div className={`grid gap-3 ${isKoordinator || isAdmin ? 'grid-cols-3' : 'grid-cols-2'}`}>
         <Link
           href="/dashboard/submit"
           className="bg-emerald-600 text-white rounded-2xl p-4 flex flex-col gap-2 hover:bg-emerald-700 transition-colors shadow-sm"
@@ -169,7 +185,7 @@ export default async function DashboardPage() {
           <p className="font-semibold">Kelola</p>
           <p className="text-xs text-blue-400">Semua pengajuan</p>
         </Link>
-        {isKoordinator && (
+        {(isKoordinator || isAdmin) && (
           <Link
             href="/dashboard/guru"
             className="bg-violet-50 border border-violet-200 text-violet-700 rounded-2xl p-4 flex flex-col gap-2 hover:bg-violet-100 hover:border-violet-300 transition-colors shadow-sm"
@@ -180,6 +196,20 @@ export default async function DashboardPage() {
           </Link>
         )}
       </div>
+
+      {/* Admin: shortcut ke kelola koordinator */}
+      {isAdmin && (
+        <Link
+          href="/dashboard/koordinator"
+          className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4 flex items-center gap-3 hover:bg-red-100 hover:border-red-300 transition-colors shadow-sm"
+        >
+          <Users className="w-6 h-6 text-red-500 flex-shrink-0" />
+          <div>
+            <p className="font-semibold">Kelola Koordinator</p>
+            <p className="text-xs text-red-400">Tambah, edit, atau hapus akun koordinator</p>
+          </div>
+        </Link>
+      )}
 
       {/* Exam Calendar */}
       <ExamCalendar
