@@ -62,5 +62,6 @@ export interface GuruAccount {
   id: string
   username: string
   unit: Unit
+  password: string | null  // salinan plaintext agar koordinator bisa melihatnya (null jika akun lama)
   created_at: string
 }

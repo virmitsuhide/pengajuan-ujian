@@ -24,25 +24,17 @@ export default async function PublicQueuePage() {
   const tahfidz = (tahfidzData ?? []) as TahfidzSubmission[]
   const tahsin = (tahsinData ?? []) as TahsinSubmission[]
 
-  function partitionBySchedule<T extends { status: string; unit: string }>(
-    items: T[],
-    unit: 'SD' | 'SMP'
-  ) {
-    const unitItems = items.filter((i) => i.unit === unit)
-    return {
-      unscheduled: unitItems.filter((i) => i.status === 'diajukan'),
-      scheduled: unitItems.filter((i) => i.status === 'dijadwalkan'),
-    }
-  }
+  const byUnit = <T extends { unit: 'SD' | 'SMP' }>(items: T[], unit: 'SD' | 'SMP') =>
+    items.filter((i) => i.unit === unit)
 
   const queueData = {
     tahfidz: {
-      sd: partitionBySchedule(tahfidz, 'SD'),
-      smp: partitionBySchedule(tahfidz, 'SMP'),
+      sd: byUnit(tahfidz, 'SD'),
+      smp: byUnit(tahfidz, 'SMP'),
     },
     tahsin: {
-      sd: partitionBySchedule(tahsin, 'SD'),
-      smp: partitionBySchedule(tahsin, 'SMP'),
+      sd: byUnit(tahsin, 'SD'),
+      smp: byUnit(tahsin, 'SMP'),
     },
   }
 
@@ -58,7 +50,7 @@ export default async function PublicQueuePage() {
     <div className="min-h-screen bg-gray-50">
       <PublicHeader badge={badge} />
 
-      <main className="max-w-2xl mx-auto px-4 py-6">
+      <main className="max-w-4xl mx-auto px-4 py-6">
         <QueueTabs {...queueData} />
       </main>
 
