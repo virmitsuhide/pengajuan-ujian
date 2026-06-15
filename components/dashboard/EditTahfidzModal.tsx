@@ -10,13 +10,14 @@ import {
   getTahfidzLabel,
   getStatusLabel,
   generateWAText,
+  generateFlyerText,
   cn,
 } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
-import { X, Trash2, ChevronRight, Copy, Check, MessageCircle, CalendarX } from 'lucide-react'
+import { X, Trash2, ChevronRight, Copy, Check, MessageCircle, Megaphone, CalendarX } from 'lucide-react'
 
 const PREDIKAT_OPTIONS: { value: Predikat; label: string }[] = [
   { value: 'mumtaz', label: 'Mumtaz' },
@@ -46,6 +47,7 @@ export function EditTahfidzModal({ item, onClose }: Props) {
   const [error, setError] = useState('')
   const [gender, setGender] = useState<'putra' | 'putri'>('putri')
   const [copied, setCopied] = useState(false)
+  const [copiedFlyer, setCopiedFlyer] = useState(false)
 
   async function handleSave() {
     setError('')
@@ -108,6 +110,19 @@ export function EditTahfidzModal({ item, onClose }: Props) {
     await navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2500)
+  }
+
+  async function handleCopyFlyer() {
+    const text = generateFlyerText({
+      // Reflect current form values (predikat & is_quls might have just changed)
+      ...item,
+      penguji: penguji || item.penguji,
+      predikat: predikat || item.predikat,
+      is_quls: isQuls,
+    })
+    await navigator.clipboard.writeText(text)
+    setCopiedFlyer(true)
+    setTimeout(() => setCopiedFlyer(false), 2500)
   }
 
   async function handleDelete() {
@@ -307,6 +322,49 @@ export function EditTahfidzModal({ item, onClose }: Props) {
                 {copied ? (
                   <>
                     <Check className="w-4 h-4 text-green-600" />
+                    Tersalin!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    Salin Teks
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* Laporan Flyer — data ringkas untuk pembuat flyer */}
+          {(item.status === 'selesai' || predikat) && item.tipe !== undefined && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <Megaphone className="w-4 h-4 text-amber-700" />
+                <p className="text-sm font-semibold text-amber-800">Laporan untuk Pembuat Flyer</p>
+              </div>
+
+              {/* Preview teks */}
+              <textarea
+                readOnly
+                value={generateFlyerText({
+                  ...item,
+                  penguji: penguji || item.penguji,
+                  predikat: (predikat || item.predikat) as any,
+                  is_quls: isQuls,
+                })}
+                rows={7}
+                className="w-full rounded-xl border border-amber-200 bg-white px-3 py-2.5 text-xs text-gray-700 font-mono resize-none focus:outline-none"
+              />
+
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleCopyFlyer}
+                className="w-full border-amber-300 text-amber-700 hover:bg-amber-50 gap-2"
+              >
+                {copiedFlyer ? (
+                  <>
+                    <Check className="w-4 h-4 text-amber-600" />
                     Tersalin!
                   </>
                 ) : (

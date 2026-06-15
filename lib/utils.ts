@@ -90,6 +90,16 @@ export function formatDate(date: string | null): string {
   })
 }
 
+export function formatDateOnly(date: string | null): string {
+  if (!date) return '-'
+  return new Date(date).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'Asia/Jakarta',
+  })
+}
+
 export function usernameToEmail(username: string): string {
   return `${username}@tahfidz.internal`
 }
@@ -164,4 +174,16 @@ Semoga Allāh jadikan Ananda semua Ahlul Quran yang hidup sesuai tuntunan Al Qur
 
 ونسأل الله أن يجعل القرآن رببع قلوبنا ونور صدورنا وجلاء أحزاننا وذهاب همومنا وغمومنا. اللهم آمين
 ${WA_FOOTER}`
+}
+
+// Laporan ringkas untuk pembuat flyer (data poin, mudah dicopy-paste)
+export function generateFlyerText(item: TahfidzSubmission): string {
+  return `👑Laporan ${getTahfidzLabel(item.tipe, item.juz)}
+
+Nama : ${item.nama_siswa}
+Nama Ayah: ${item.nama_ayah}
+Kelas : ${item.kelas}${item.is_quls ? ' QULS' : ''}
+Tanggal ujian : ${formatDateOnly(item.jadwal)}
+Penguji: ${item.penguji ?? '-'}
+Predikat: ${getPredikatLabel(item.predikat)}`
 }
