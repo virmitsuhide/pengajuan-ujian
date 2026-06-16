@@ -21,6 +21,7 @@ interface Props {
   unit: Unit
   canEdit: boolean
   creatorMap: Record<string, string>
+  pengujiOptions: string[]
 }
 
 type FilterStatus = 'semua' | 'diajukan' | 'dijadwalkan' | 'selesai'
@@ -51,7 +52,7 @@ function formatJadwalShort(date: string | null): string {
   })
 }
 
-export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit, creatorMap }: Props) {
+export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit, creatorMap, pengujiOptions }: Props) {
   const [editingTahfidz, setEditingTahfidz] = useState<TahfidzSubmission | null>(null)
   const [editingTahsin, setEditingTahsin] = useState<TahsinSubmission | null>(null)
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('semua')
@@ -402,10 +403,18 @@ export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit, creatorMap }
       </div>
 
       {editingTahfidz && (
-        <EditTahfidzModal item={editingTahfidz} onClose={() => setEditingTahfidz(null)} />
+        <EditTahfidzModal
+          item={editingTahfidz}
+          pengujiOptions={pengujiOptions}
+          onClose={() => setEditingTahfidz(null)}
+        />
       )}
       {editingTahsin && (
-        <EditTahsinModal item={editingTahsin} onClose={() => setEditingTahsin(null)} />
+        <EditTahsinModal
+          item={editingTahsin}
+          pengujiOptions={pengujiOptions}
+          onClose={() => setEditingTahsin(null)}
+        />
       )}
     </div>
   )

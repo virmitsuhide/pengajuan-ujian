@@ -13,6 +13,7 @@ import {
   LogOut,
   BookOpen,
   Users,
+  History,
 } from 'lucide-react'
 
 export function DashboardNav({ profile, unseenCount }: { profile: UserProfile; unseenCount: number }) {
@@ -24,6 +25,9 @@ export function DashboardNav({ profile, unseenCount }: { profile: UserProfile; u
     { href: '/dashboard', label: 'Ringkasan', icon: LayoutDashboard, exact: true },
     { href: '/dashboard/submit', label: 'Ajukan', icon: PlusCircle, exact: false },
     { href: '/dashboard/submissions', label: 'Kelola', icon: ListChecks, exact: false },
+    ...(isKoordinator || isAdmin
+      ? [{ href: '/dashboard/riwayat', label: 'Riwayat', icon: History, exact: false }]
+      : []),
     ...(isKoordinator || isAdmin
       ? [{ href: '/dashboard/guru', label: 'Guru', icon: Users, exact: false }]
       : []),

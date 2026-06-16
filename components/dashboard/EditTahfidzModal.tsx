@@ -29,10 +29,11 @@ const PREDIKAT_OPTIONS: { value: Predikat; label: string }[] = [
 
 interface Props {
   item: TahfidzSubmission
+  pengujiOptions: string[]
   onClose: () => void
 }
 
-export function EditTahfidzModal({ item, onClose }: Props) {
+export function EditTahfidzModal({ item, pengujiOptions, onClose }: Props) {
   const [jadwal, setJadwal] = useState(
     item.jadwal ? new Date(item.jadwal).toISOString().slice(0, 16) : ''
   )
@@ -214,13 +215,22 @@ export function EditTahfidzModal({ item, onClose }: Props) {
               />
             </div>
 
-            <Input
+            <Select
               id="penguji"
               label="Penguji"
-              placeholder="Nama penguji"
               value={penguji}
               onChange={(e) => setPenguji(e.target.value)}
-            />
+            >
+              <option value="">— Pilih penguji —</option>
+              {penguji && !pengujiOptions.includes(penguji) && (
+                <option value={penguji}>{penguji} (lama)</option>
+              )}
+              {pengujiOptions.map((nama) => (
+                <option key={nama} value={nama}>
+                  {nama}
+                </option>
+              ))}
+            </Select>
 
             <Input
               id="nama_ayah"

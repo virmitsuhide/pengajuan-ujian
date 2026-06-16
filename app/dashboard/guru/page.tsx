@@ -1,5 +1,6 @@
 import { getUserProfile } from '@/lib/actions/auth'
 import { listGuru } from '@/lib/actions/users'
+import { listPengujis } from '@/lib/actions/pengujis'
 import { redirect } from 'next/navigation'
 import { GuruClient } from '@/components/dashboard/GuruClient'
 
@@ -8,7 +9,7 @@ export default async function GuruPage() {
   if (!profile) redirect('/login')
   if (profile.role !== 'koordinator' && profile.role !== 'admin') redirect('/dashboard')
 
-  const guruList = await listGuru()
+  const [guruList, pengujis] = await Promise.all([listGuru(), listPengujis()])
 
   return (
     <div className="pb-24 sm:pb-6">
@@ -19,7 +20,12 @@ export default async function GuruPage() {
         </p>
       </div>
 
-      <GuruClient guruList={guruList} unit={profile.unit} isAdmin={profile.role === 'admin'} />
+      <GuruClient
+        guruList={guruList}
+        pengujis={pengujis}
+        unit={profile.unit}
+        isAdmin={profile.role === 'admin'}
+      />
     </div>
   )
 }

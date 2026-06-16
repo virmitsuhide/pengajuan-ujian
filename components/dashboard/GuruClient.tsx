@@ -9,10 +9,12 @@ import {
 } from '@/lib/actions/users'
 import type {
   GuruAccount,
+  Penguji,
   TahfidzSubmission,
   TahsinSubmission,
   Unit,
 } from '@/lib/types'
+import { PengujiManager } from './PengujiManager'
 import {
   formatDate,
   getStatusColor,
@@ -36,12 +38,14 @@ import { useRouter } from 'next/navigation'
 
 interface Props {
   guruList: GuruAccount[]
+  pengujis: Penguji[]
   unit: Unit | null
   isAdmin?: boolean
 }
 
-export function GuruClient({ guruList: initial, unit, isAdmin }: Props) {
+export function GuruClient({ guruList: initial, pengujis, unit, isAdmin }: Props) {
   const router = useRouter()
+  const [activeTab, setActiveTab] = useState<'guru' | 'penguji'>('guru')
   const [guruList, setGuruList] = useState(initial)
   const [showForm, setShowForm] = useState(false)
   const [username, setUsername] = useState('')
@@ -109,6 +113,31 @@ export function GuruClient({ guruList: initial, unit, isAdmin }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Tab switch */}
+      <div className="flex gap-2">
+        {([
+          { value: 'guru', label: 'Akun Guru' },
+          { value: 'penguji', label: 'Daftar Penguji' },
+        ] as const).map((tab) => (
+          <button
+            key={tab.value}
+            onClick={() => setActiveTab(tab.value)}
+            className={
+              'flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all ' +
+              (activeTab === tab.value
+                ? 'bg-violet-600 text-white shadow-sm'
+                : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300')
+            }
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'penguji' ? (
+        <PengujiManager pengujis={pengujis} />
+      ) : (
+        <>
       {/* Tombol tambah */}
       {!showForm && (
         <button
@@ -320,6 +349,8 @@ export function GuruClient({ guruList: initial, unit, isAdmin }: Props) {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   )

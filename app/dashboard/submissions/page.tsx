@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getUserProfile } from '@/lib/actions/auth'
 import { getCreatorMap } from '@/lib/actions/users'
+import { listPengujis } from '@/lib/actions/pengujis'
 import { SubmissionsClient } from '@/components/dashboard/SubmissionsClient'
 import { MarkSeen } from '@/components/dashboard/MarkSeen'
 import type { TahfidzSubmission, TahsinSubmission } from '@/lib/types'
@@ -22,6 +23,7 @@ export default async function SubmissionsPage() {
   const [{ data: tahfidzData }, { data: tahsinData }] = await Promise.all([tfQuery, tsQuery])
 
   const creatorMap = (profile.role === 'koordinator' || profile.role === 'admin') ? await getCreatorMap() : {}
+  const pengujis = await listPengujis()
 
   return (
     <div className="pb-24 sm:pb-6">
@@ -39,6 +41,7 @@ export default async function SubmissionsPage() {
         unit={profile.unit ?? 'SD'}
         canEdit={profile.role === 'koordinator' || profile.role === 'admin'}
         creatorMap={creatorMap}
+        pengujiOptions={pengujis.map((p) => p.nama)}
       />
     </div>
   )

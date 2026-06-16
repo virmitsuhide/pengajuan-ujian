@@ -8,17 +8,17 @@ import {
 } from '@/lib/actions/submissions'
 import { getStatusLabel } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
 import { X, Trash2, ChevronRight, CalendarX } from 'lucide-react'
 
 interface Props {
   item: TahsinSubmission
+  pengujiOptions: string[]
   onClose: () => void
 }
 
-export function EditTahsinModal({ item, onClose }: Props) {
+export function EditTahsinModal({ item, pengujiOptions, onClose }: Props) {
   const [jadwal, setJadwal] = useState(
     item.jadwal ? new Date(item.jadwal).toISOString().slice(0, 16) : ''
   )
@@ -172,13 +172,22 @@ export function EditTahsinModal({ item, onClose }: Props) {
             />
           </div>
 
-          <Input
+          <Select
             id="penguji"
             label="Penguji"
-            placeholder="Nama penguji"
             value={penguji}
             onChange={(e) => setPenguji(e.target.value)}
-          />
+          >
+            <option value="">— Pilih penguji —</option>
+            {penguji && !pengujiOptions.includes(penguji) && (
+              <option value={penguji}>{penguji} (lama)</option>
+            )}
+            {pengujiOptions.map((nama) => (
+              <option key={nama} value={nama}>
+                {nama}
+              </option>
+            ))}
+          </Select>
 
           {/* Siswa predikat */}
           <div>
