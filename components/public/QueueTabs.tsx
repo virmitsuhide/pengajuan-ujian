@@ -131,7 +131,58 @@ export function QueueTabs({ tahfidz, tahsin }: QueueTabsProps) {
                 Belum ada pengajuan Tahfidz
               </p>
             ) : (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+              <>
+              {/* Mobile: kartu */}
+              <ul className="space-y-2 sm:hidden">
+                {tfSorted.map((item) => (
+                  <li
+                    key={item.id}
+                    className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3.5"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2 min-w-0">
+                        <span className="text-xs font-semibold text-gray-400 mt-0.5 shrink-0">
+                          #{tfNumbers.get(item.id)}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-gray-900 truncate">
+                            {item.nama_siswa}
+                            {item.is_quls && (
+                              <span className="ml-1.5 text-[10px] font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded px-1 py-0.5">
+                                QULS
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            Kelas {item.kelas} · {getTahfidzLabel(item.tipe, item.juz)}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className={cn(
+                          'shrink-0 text-xs font-medium px-2 py-1 rounded-lg whitespace-nowrap',
+                          item.jadwal
+                            ? 'bg-blue-50 text-blue-600'
+                            : 'bg-amber-50 text-amber-600'
+                        )}
+                      >
+                        {formatJadwal(item.jadwal)}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between gap-2 text-xs border-t border-gray-50 pt-2">
+                      <span className="text-gray-400">
+                        Diajukan {formatDateShort(item.created_at)}
+                      </span>
+                      <span className={item.penguji ? 'text-gray-600 font-medium' : 'text-gray-400'}>
+                        {item.penguji || 'Penguji belum ditentukan'}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Desktop: tabel */}
+              <div className="hidden sm:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
                 <table className="w-full text-sm border-collapse min-w-[640px]">
                   <thead>
                     <tr className="border-b border-gray-100 text-xs">
@@ -182,6 +233,7 @@ export function QueueTabs({ tahfidz, tahsin }: QueueTabsProps) {
                   </tbody>
                 </table>
               </div>
+              </>
             )}
           </section>
 
@@ -197,7 +249,53 @@ export function QueueTabs({ tahfidz, tahsin }: QueueTabsProps) {
                 Belum ada pengajuan Tahsin
               </p>
             ) : (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+              <>
+              {/* Mobile: kartu */}
+              <ul className="space-y-2 sm:hidden">
+                {tsSorted.map((item) => (
+                  <li
+                    key={item.id}
+                    className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3.5"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2 min-w-0">
+                        <span className="text-xs font-semibold text-gray-400 mt-0.5 shrink-0">
+                          #{tsNumbers.get(item.id)}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-gray-900 truncate">
+                            {item.nama_kelompok}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            Jilid {item.level} · {item.siswa.length} siswa · Sesi {item.sesi}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className={cn(
+                          'shrink-0 text-xs font-medium px-2 py-1 rounded-lg whitespace-nowrap',
+                          item.jadwal
+                            ? 'bg-blue-50 text-blue-600'
+                            : 'bg-amber-50 text-amber-600'
+                        )}
+                      >
+                        {formatJadwal(item.jadwal)}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between gap-2 text-xs border-t border-gray-50 pt-2">
+                      <span className="text-gray-400">
+                        Diajukan {formatDateShort(item.created_at)}
+                      </span>
+                      <span className={item.penguji ? 'text-gray-600 font-medium' : 'text-gray-400'}>
+                        {item.penguji || 'Penguji belum ditentukan'}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Desktop: tabel */}
+              <div className="hidden sm:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
                 <table className="w-full text-sm border-collapse min-w-[640px]">
                   <thead>
                     <tr className="border-b border-gray-100 text-xs">
@@ -242,6 +340,7 @@ export function QueueTabs({ tahfidz, tahsin }: QueueTabsProps) {
                   </tbody>
                 </table>
               </div>
+              </>
             )}
           </section>
         </div>

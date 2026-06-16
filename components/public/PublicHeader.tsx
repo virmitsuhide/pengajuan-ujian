@@ -3,13 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { List, BarChart2 } from 'lucide-react'
+import { List, BarChart2, LayoutDashboard } from 'lucide-react'
 
 interface PublicHeaderProps {
   badge?: React.ReactNode
+  isLoggedIn?: boolean
 }
 
-export function PublicHeader({ badge }: PublicHeaderProps) {
+export function PublicHeader({ badge, isLoggedIn }: PublicHeaderProps) {
   const pathname = usePathname()
 
   return (
@@ -23,12 +24,22 @@ export function PublicHeader({ badge }: PublicHeaderProps) {
           </div>
           <div className="flex items-center gap-3">
             {badge}
-            <Link
-              href="/login"
-              className="text-xs text-gray-400 hover:text-gray-600 font-medium border border-gray-200 rounded-lg px-2.5 py-1.5 transition-colors"
-            >
-              Login
-            </Link>
+            {isLoggedIn ? (
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-1.5 text-xs text-emerald-700 hover:text-emerald-800 font-medium border border-emerald-200 bg-emerald-50 rounded-lg px-2.5 py-1.5 transition-colors"
+              >
+                <LayoutDashboard className="w-3.5 h-3.5" />
+                Ke Dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="text-xs text-gray-400 hover:text-gray-600 font-medium border border-gray-200 rounded-lg px-2.5 py-1.5 transition-colors"
+              >
+                Login
+              </Link>
+            )}
           </div>
         </div>
 

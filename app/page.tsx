@@ -8,6 +8,10 @@ export const revalidate = 60
 export default async function PublicQueuePage() {
   const supabase = await createClient()
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   const [{ data: tahfidzData }, { data: tahsinData }] = await Promise.all([
     supabase
       .from('tahfidz_submissions')
@@ -48,9 +52,9 @@ export default async function PublicQueuePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <PublicHeader badge={badge} />
+      <PublicHeader badge={badge} isLoggedIn={!!user} />
 
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      <main className="max-w-2xl mx-auto px-4 py-6">
         <QueueTabs {...queueData} />
       </main>
 

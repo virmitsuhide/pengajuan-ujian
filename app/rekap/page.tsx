@@ -21,6 +21,10 @@ export default async function RekapPage({ searchParams }: Props) {
 
   const supabase = await createClient()
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   const [{ data: tahfidzData }, { data: tahsinData }] = await Promise.all([
     supabase
       .from('tahfidz_submissions')
@@ -40,7 +44,7 @@ export default async function RekapPage({ searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <PublicHeader />
+      <PublicHeader isLoggedIn={!!user} />
 
       <main className="max-w-2xl mx-auto px-4 py-6">
         <RekapClient
