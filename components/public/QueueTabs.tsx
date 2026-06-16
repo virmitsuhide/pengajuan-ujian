@@ -70,9 +70,6 @@ export function QueueTabs({ tahfidz, tahsin }: QueueTabsProps) {
 
   const totalAntrian = tfItems.length + tsItems.length
 
-  const headerCell = 'px-3 py-2 text-left font-semibold text-gray-500 whitespace-nowrap'
-  const bodyCell = 'px-3 py-2.5 align-top text-gray-700'
-
   return (
     <div>
       {/* Tab switcher */}
@@ -131,9 +128,7 @@ export function QueueTabs({ tahfidz, tahsin }: QueueTabsProps) {
                 Belum ada pengajuan Tahfidz
               </p>
             ) : (
-              <>
-              {/* Mobile: kartu */}
-              <ul className="space-y-2 sm:hidden">
+              <ul className="space-y-2">
                 {tfSorted.map((item) => (
                   <li
                     key={item.id}
@@ -180,60 +175,6 @@ export function QueueTabs({ tahfidz, tahsin }: QueueTabsProps) {
                   </li>
                 ))}
               </ul>
-
-              {/* Desktop: tabel */}
-              <div className="hidden sm:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
-                <table className="w-full text-sm border-collapse min-w-[640px]">
-                  <thead>
-                    <tr className="border-b border-gray-100 text-xs">
-                      <th className={cn(headerCell, 'w-10')}>#</th>
-                      <th className={headerCell}>Tgl Pengajuan</th>
-                      <th className={headerCell}>Nama Lengkap</th>
-                      <th className={headerCell}>Kelas</th>
-                      <th className={headerCell}>Juz</th>
-                      <th className={headerCell}>Jadwal</th>
-                      <th className={headerCell}>Penguji</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {tfSorted.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50/60">
-                        <td className={cn(bodyCell, 'text-gray-400 font-medium')}>
-                          {tfNumbers.get(item.id)}
-                        </td>
-                        <td className={cn(bodyCell, 'whitespace-nowrap text-gray-500')}>
-                          {formatDateShort(item.created_at)}
-                        </td>
-                        <td className={cn(bodyCell, 'font-semibold text-gray-900')}>
-                          {item.nama_siswa}
-                          {item.is_quls && (
-                            <span className="ml-1.5 text-[10px] font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded px-1 py-0.5">
-                              QULS
-                            </span>
-                          )}
-                        </td>
-                        <td className={cn(bodyCell, 'whitespace-nowrap')}>{item.kelas}</td>
-                        <td className={cn(bodyCell, 'whitespace-nowrap')}>
-                          {getTahfidzLabel(item.tipe, item.juz)}
-                        </td>
-                        <td
-                          className={cn(
-                            bodyCell,
-                            'whitespace-nowrap',
-                            item.jadwal ? 'text-blue-600' : 'text-amber-600'
-                          )}
-                        >
-                          {formatJadwal(item.jadwal)}
-                        </td>
-                        <td className={cn(bodyCell, item.penguji ? '' : 'text-gray-400')}>
-                          {item.penguji || 'Belum ditentukan'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              </>
             )}
           </section>
 
@@ -249,9 +190,7 @@ export function QueueTabs({ tahfidz, tahsin }: QueueTabsProps) {
                 Belum ada pengajuan Tahsin
               </p>
             ) : (
-              <>
-              {/* Mobile: kartu */}
-              <ul className="space-y-2 sm:hidden">
+              <ul className="space-y-2">
                 {tsSorted.map((item) => (
                   <li
                     key={item.id}
@@ -293,54 +232,6 @@ export function QueueTabs({ tahfidz, tahsin }: QueueTabsProps) {
                   </li>
                 ))}
               </ul>
-
-              {/* Desktop: tabel */}
-              <div className="hidden sm:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
-                <table className="w-full text-sm border-collapse min-w-[640px]">
-                  <thead>
-                    <tr className="border-b border-gray-100 text-xs">
-                      <th className={cn(headerCell, 'w-10')}>#</th>
-                      <th className={headerCell}>Tgl Pengajuan</th>
-                      <th className={headerCell}>Nama Kelompok</th>
-                      <th className={headerCell}>Jilid</th>
-                      <th className={headerCell}>Jadwal</th>
-                      <th className={headerCell}>Penguji</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {tsSorted.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50/60">
-                        <td className={cn(bodyCell, 'text-gray-400 font-medium')}>
-                          {tsNumbers.get(item.id)}
-                        </td>
-                        <td className={cn(bodyCell, 'whitespace-nowrap text-gray-500')}>
-                          {formatDateShort(item.created_at)}
-                        </td>
-                        <td className={cn(bodyCell, 'font-semibold text-gray-900')}>
-                          {item.nama_kelompok}
-                          <span className="block text-xs font-normal text-gray-400">
-                            {item.siswa.length} siswa · Sesi {item.sesi}
-                          </span>
-                        </td>
-                        <td className={cn(bodyCell, 'whitespace-nowrap')}>{item.level}</td>
-                        <td
-                          className={cn(
-                            bodyCell,
-                            'whitespace-nowrap',
-                            item.jadwal ? 'text-blue-600' : 'text-amber-600'
-                          )}
-                        >
-                          {formatJadwal(item.jadwal)}
-                        </td>
-                        <td className={cn(bodyCell, item.penguji ? '' : 'text-gray-400')}>
-                          {item.penguji || 'Belum ditentukan'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              </>
             )}
           </section>
         </div>
