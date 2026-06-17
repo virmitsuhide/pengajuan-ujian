@@ -80,6 +80,7 @@ export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit, creatorMap, 
   const [filterTahfidz, setFilterTahfidz] = useState<TahfidzTipeFilter>('semua')
   const [filterTahsin, setFilterTahsin] = useState<string>('semua')
   const [expandedTahsin, setExpandedTahsin] = useState<Set<string>>(new Set())
+  const [activeJenis, setActiveJenis] = useState<'tahfidz' | 'tahsin'>('tahfidz')
   const [isPending, startTransition] = useTransition()
 
   function toggleExpand(id: string) {
@@ -160,14 +161,32 @@ export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit, creatorMap, 
         ))}
       </div>
 
+      {/* Tab jenis: Tahfidz / Tahsin */}
+      <div className="flex gap-2">
+        {([
+          { key: 'tahfidz', label: 'Tahfidz', icon: BookOpen, count: filteredTahfidz.length },
+          { key: 'tahsin', label: 'Tahsin', icon: Clipboard, count: filteredTahsin.length },
+        ] as const).map(({ key, label, icon: Icon, count }) => (
+          <button
+            key={key}
+            onClick={() => setActiveJenis(key)}
+            className={cn(
+              'flex-1 flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all',
+              activeJenis === key
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300'
+            )}
+          >
+            <Icon className="w-4 h-4" />
+            {label} ({count})
+          </button>
+        ))}
+      </div>
+
       <div className="flex flex-col gap-6">
         {/* ── Tahfidz ── */}
+        {activeJenis === 'tahfidz' && (
         <section>
-          <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-            <BookOpen className="w-3.5 h-3.5" />
-            Tahfidz ({filteredTahfidz.length})
-          </h2>
-
           {/* Sub-tab tipe */}
           <div className="flex gap-1.5 overflow-x-auto pb-1 mb-3">
             {tahfidzTabs.map(({ value, label }) => (
@@ -283,14 +302,11 @@ export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit, creatorMap, 
             </ul>
           )}
         </section>
+        )}
 
         {/* ── Tahsin ── */}
+        {activeJenis === 'tahsin' && (
         <section>
-          <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-            <Clipboard className="w-3.5 h-3.5" />
-            Tahsin ({filteredTahsin.length})
-          </h2>
-
           {/* Sub-tab level */}
           <div className="flex gap-1.5 overflow-x-auto pb-1 mb-3">
             {tahsinLevelTabs.map((lvl) => (
@@ -447,6 +463,7 @@ export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit, creatorMap, 
             </ul>
           )}
         </section>
+        )}
       </div>
 
       {editingTahfidz && (
