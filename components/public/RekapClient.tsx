@@ -9,6 +9,8 @@ import {
   getPredikatColor,
   getUnitColor,
   formatDate,
+  formatTahsinLevels,
+  groupSiswaByLevel,
   cn,
 } from '@/lib/utils'
 import { exportRekapExcel } from '@/lib/export'
@@ -257,7 +259,7 @@ export function RekapClient({ tahfidz, tahsin, month, year }: Props) {
                         )}
                       </div>
                       <p className="font-semibold text-gray-900">{item.nama_kelompok}</p>
-                      <p className="text-xs text-gray-500">{item.level} · Sesi {item.sesi}</p>
+                      <p className="text-xs text-gray-500">{formatTahsinLevels(item)} · Sesi {item.sesi}</p>
                       <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
                         <span>{formatDate(item.jadwal)}</span>
                         {item.penguji && <span>· {item.penguji}</span>}
@@ -273,20 +275,26 @@ export function RekapClient({ tahfidz, tahsin, month, year }: Props) {
 
                   {isExpanded && (
                     <div className="mt-3 border-t border-gray-50 pt-3">
-                      <p className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5" /> {item.siswa.length} Siswa
-                      </p>
-                      <div className="flex flex-col gap-1.5">
-                        {item.siswa.map((s, i) => (
-                          <div key={i} className="flex items-center justify-between text-sm">
-                            <span className="text-gray-700">{s.nama}</span>
-                            <span className={cn(
-                              'text-xs font-medium',
-                              s.predikat === 'lulus' ? 'text-emerald-700' :
-                              s.predikat === 'mengulang' ? 'text-red-600' : 'text-gray-400'
-                            )}>
-                              {s.predikat === 'lulus' ? 'Lulus' : s.predikat === 'mengulang' ? 'Mengulang' : '-'}
-                            </span>
+                      <div className="flex flex-col gap-3">
+                        {groupSiswaByLevel(item).map((group, gi) => (
+                          <div key={gi}>
+                            <p className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1.5">
+                              <Users className="w-3.5 h-3.5" /> {group.level} · {group.siswa.length} siswa
+                            </p>
+                            <div className="flex flex-col gap-1.5">
+                              {group.siswa.map((s, i) => (
+                                <div key={i} className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-700">{s.nama}</span>
+                                  <span className={cn(
+                                    'text-xs font-medium',
+                                    s.predikat === 'lulus' ? 'text-emerald-700' :
+                                    s.predikat === 'mengulang' ? 'text-red-600' : 'text-gray-400'
+                                  )}>
+                                    {s.predikat === 'lulus' ? 'Lulus' : s.predikat === 'mengulang' ? 'Mengulang' : '-'}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         ))}
                       </div>

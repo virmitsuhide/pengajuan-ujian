@@ -26,6 +26,9 @@ export interface TahfidzSubmission {
 export interface SiswaItem {
   nama: string
   predikat: 'lulus' | 'mengulang' | null
+  // Level/capaian siswa ini. Opsional demi kompatibilitas data lama —
+  // jika kosong, pakai `level` pada TahsinSubmission.
+  level?: string
 }
 
 export interface TahsinSubmission {

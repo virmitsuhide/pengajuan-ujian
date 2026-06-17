@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import type { TahfidzSubmission, TahsinSubmission } from '@/lib/types'
-import { getTahfidzLabel, cn } from '@/lib/utils'
+import { getTahfidzLabel, formatTahsinLevels, cn } from '@/lib/utils'
 import { ArrowDownNarrowWide, ArrowUpNarrowWide } from 'lucide-react'
 
 interface QueueTabsProps {
@@ -206,7 +206,7 @@ export function QueueTabs({ tahfidz, tahsin }: QueueTabsProps) {
                             {item.nama_kelompok}
                           </p>
                           <p className="text-xs text-gray-500 mt-0.5">
-                            Jilid {item.level} · {item.siswa.length} siswa · Sesi {item.sesi}
+                            {formatTahsinLevels(item)} · {item.siswa.length} siswa · Sesi {item.sesi}
                           </p>
                         </div>
                       </div>

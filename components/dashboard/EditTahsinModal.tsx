@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { TahsinSubmission, SiswaItem, SubmissionStatus } from '@/lib/types'
 import {
   updateTahsinSubmission,
   deleteTahsinSubmission,
 } from '@/lib/actions/submissions'
-import { getStatusLabel } from '@/lib/utils'
+import { getStatusLabel, formatTahsinLevels } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
@@ -35,6 +35,22 @@ export function EditTahsinModal({ item, pengujiOptions, onClose }: Props) {
       prev.map((s, i) => (i === index ? { ...s, predikat } : s))
     )
   }
+
+  // Kelompokkan siswa per level untuk tampilan, tapi simpan indeks aslinya
+  // agar perubahan predikat tetap menulis ke array `siswa` yang flat.
+  const groupedSiswa = useMemo(() => {
+    const groups: { level: string; items: { s: SiswaItem; index: number }[] }[] = []
+    siswa.forEach((s, index) => {
+      const level = s.level?.trim() || item.level
+      let group = groups.find((g) => g.level === level)
+      if (!group) {
+        group = { level, items: [] }
+        groups.push(group)
+      }
+      group.items.push({ s, index })
+    })
+    return groups
+  }, [siswa, item.level])
 
   async function handleSave() {
     setError('')
@@ -124,7 +140,7 @@ export function EditTahsinModal({ item, pengujiOptions, onClose }: Props) {
                 {item.nama_kelompok}
               </h2>
               <p className="text-sm text-gray-500">
-                {item.level} · Sesi {item.sesi}
+                {formatTahsinLevels(item)} · Sesi {item.sesi}
               </p>
             </div>
             <button
@@ -189,34 +205,43 @@ export function EditTahsinModal({ item, pengujiOptions, onClose }: Props) {
             ))}
           </Select>
 
-          {/* Siswa predikat */}
+          {/* Siswa predikat — dikelompokkan per level/capaian */}
           <div>
             <p className="text-sm font-medium text-gray-700 mb-2">
               Predikat Per Siswa
             </p>
-            <div className="flex flex-col gap-2">
-              {siswa.map((s, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 bg-gray-50 rounded-xl px-3 py-2"
-                >
-                  <span className="text-sm text-gray-800 flex-1 font-medium">
-                    {s.nama}
-                  </span>
-                  <select
-                    value={s.predikat ?? ''}
-                    onChange={(e) =>
-                      updatePredikat(
-                        index,
-                        (e.target.value || null) as SiswaItem['predikat']
-                      )
-                    }
-                    className="rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  >
-                    <option value="">-- Belum --</option>
-                    <option value="lulus">Lulus</option>
-                    <option value="mengulang">Mengulang</option>
-                  </select>
+            <div className="flex flex-col gap-3">
+              {groupedSiswa.map((group, gi) => (
+                <div key={gi}>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">
+                    {group.level}
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    {group.items.map(({ s, index }) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 bg-gray-50 rounded-xl px-3 py-2"
+                      >
+                        <span className="text-sm text-gray-800 flex-1 font-medium">
+                          {s.nama}
+                        </span>
+                        <select
+                          value={s.predikat ?? ''}
+                          onChange={(e) =>
+                            updatePredikat(
+                              index,
+                              (e.target.value || null) as SiswaItem['predikat']
+                            )
+                          }
+                          className="rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        >
+                          <option value="">-- Belum --</option>
+                          <option value="lulus">Lulus</option>
+                          <option value="mengulang">Mengulang</option>
+                        </select>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>

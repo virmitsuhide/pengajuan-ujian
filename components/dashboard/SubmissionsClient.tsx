@@ -13,6 +13,9 @@ import {
   getPredikatLabel,
   getPredikatColor,
   getTahfidzLabel,
+  getTahsinLevels,
+  formatTahsinLevels,
+  groupSiswaByLevel,
   cn,
 } from '@/lib/utils'
 import {
@@ -129,11 +132,13 @@ export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit, creatorMap, 
     filterTahsin === 'semua'
       ? tahsin
       : filterTahsin === 'lainnya'
-      ? tahsin.filter((t) => !validLevels.includes(t.level))
-      : tahsin.filter((t) => t.level === filterTahsin)
+      ? tahsin.filter((t) => getTahsinLevels(t).some((l) => !validLevels.includes(l)))
+      : tahsin.filter((t) => getTahsinLevels(t).includes(filterTahsin))
   )
 
-  const lainnyaCount = tahsin.filter((t) => !validLevels.includes(t.level)).length
+  const lainnyaCount = tahsin.filter((t) =>
+    getTahsinLevels(t).some((l) => !validLevels.includes(l))
+  ).length
 
   return (
     <div className="flex flex-col gap-5">
@@ -327,7 +332,7 @@ export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit, creatorMap, 
                         <div className="min-w-0">
                           <p className="font-semibold text-gray-900 truncate">{item.nama_kelompok}</p>
                           <p className="text-xs text-gray-500 mt-0.5">
-                            {item.level} · {item.siswa.length} siswa · Sesi {item.sesi}
+                            {formatTahsinLevels(item)} · {item.siswa.length} siswa · Sesi {item.sesi}
                           </p>
                           {canEdit && creatorMap[item.created_by] && (
                             <p className="text-xs text-gray-400 mt-0.5">
@@ -367,35 +372,39 @@ export function SubmissionsClient({ tahfidz, tahsin, unit, canEdit, creatorMap, 
                       </div>
                     </div>
 
-                    {/* Daftar anggota (expand) */}
+                    {/* Daftar anggota (expand) — dikelompokkan per level/capaian */}
                     {isExpanded && (
-                      <div className="mt-2.5 border-t border-gray-50 pt-2.5">
-                        <p className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1.5">
-                          <Users className="w-3.5 h-3.5" />
-                          {item.siswa.length} Siswa
-                        </p>
-                        <div className="grid gap-1.5 sm:grid-cols-2">
-                          {item.siswa.map((s, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-center justify-between text-sm bg-gray-50 border border-gray-100 rounded-lg px-3 py-1.5"
-                            >
-                              <span className="text-gray-700">{s.nama}</span>
-                              {s.predikat ? (
-                                <span
-                                  className={cn(
-                                    'text-xs font-medium',
-                                    s.predikat === 'lulus' ? 'text-emerald-700' : 'text-red-600'
-                                  )}
+                      <div className="mt-2.5 border-t border-gray-50 pt-2.5 flex flex-col gap-3">
+                        {groupSiswaByLevel(item).map((group, gi) => (
+                          <div key={gi}>
+                            <p className="text-xs text-gray-400 font-medium mb-2 flex items-center gap-1.5">
+                              <Users className="w-3.5 h-3.5" />
+                              {group.level} · {group.siswa.length} siswa
+                            </p>
+                            <div className="grid gap-1.5 sm:grid-cols-2">
+                              {group.siswa.map((s, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex items-center justify-between text-sm bg-gray-50 border border-gray-100 rounded-lg px-3 py-1.5"
                                 >
-                                  {s.predikat === 'lulus' ? 'Lulus' : 'Mengulang'}
-                                </span>
-                              ) : (
-                                <span className="text-xs text-gray-400">Belum</span>
-                              )}
+                                  <span className="text-gray-700">{s.nama}</span>
+                                  {s.predikat ? (
+                                    <span
+                                      className={cn(
+                                        'text-xs font-medium',
+                                        s.predikat === 'lulus' ? 'text-emerald-700' : 'text-red-600'
+                                      )}
+                                    >
+                                      {s.predikat === 'lulus' ? 'Lulus' : 'Mengulang'}
+                                    </span>
+                                  ) : (
+                                    <span className="text-xs text-gray-400">Belum</span>
+                                  )}
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
+                          </div>
+                        ))}
                       </div>
                     )}
 

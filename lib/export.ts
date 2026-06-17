@@ -85,7 +85,7 @@ export function exportRekapExcel(
           si === 0 ? item.unit : '',
           si === 0 ? item.nama_kelompok : '',
           si === 0 ? item.sesi : '',
-          si === 0 ? item.level : '',
+          s.level?.trim() || item.level,  // level per siswa (fallback ke level pengajuan)
           s.nama,
           s.predikat === 'lulus' ? 'Lulus' : s.predikat === 'mengulang' ? 'Mengulang' : '-',
           si === 0 ? (item.penguji ?? '-') : '',

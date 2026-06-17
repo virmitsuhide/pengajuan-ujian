@@ -1,9 +1,40 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import type { TahfidzTipe, SubmissionStatus, Predikat, Unit, TahfidzSubmission } from './types'
+import type { TahfidzTipe, SubmissionStatus, Predikat, Unit, TahfidzSubmission, TahsinSubmission, SiswaItem } from './types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+type TahsinSiswaSource = Pick<TahsinSubmission, 'level' | 'siswa'>
+
+// Kelompokkan siswa tahsin per level/capaian, mempertahankan urutan kemunculan.
+// Siswa pada data lama (tanpa `level`) otomatis memakai level pengajuan.
+export function groupSiswaByLevel(
+  item: TahsinSiswaSource
+): { level: string; siswa: SiswaItem[] }[] {
+  const groups: { level: string; siswa: SiswaItem[] }[] = []
+  for (const s of item.siswa) {
+    const lvl = s.level?.trim() || item.level
+    let group = groups.find((g) => g.level === lvl)
+    if (!group) {
+      group = { level: lvl, siswa: [] }
+      groups.push(group)
+    }
+    group.siswa.push(s)
+  }
+  return groups
+}
+
+// Daftar level unik (urut kemunculan) pada satu pengajuan tahsin.
+export function getTahsinLevels(item: TahsinSiswaSource): string[] {
+  return groupSiswaByLevel(item).map((g) => g.level)
+}
+
+// String ringkas level untuk ditampilkan, mis. "Jilid 1, Al-Qur'an".
+export function formatTahsinLevels(item: TahsinSiswaSource): string {
+  const levels = getTahsinLevels(item)
+  return levels.length > 0 ? levels.join(', ') : item.level
 }
 
 export function getTahfidzLabel(tipe: TahfidzTipe, juz: string): string {

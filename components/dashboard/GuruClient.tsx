@@ -20,6 +20,7 @@ import {
   getStatusColor,
   getStatusLabel,
   getTahfidzLabel,
+  formatTahsinLevels,
 } from '@/lib/utils'
 import {
   UserPlus,
@@ -561,7 +562,7 @@ function GuruHistoryModal({ guru, onClose }: { guru: GuruAccount; onClose: () =>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-gray-800 truncate">{item.nama_kelompok}</p>
                         <p className="text-xs text-gray-400">
-                          {item.level} · {item.siswa.length} siswa
+                          {formatTahsinLevels(item)} · {item.siswa.length} siswa
                         </p>
                       </div>
                       <Badge className={getStatusColor(item.status)}>

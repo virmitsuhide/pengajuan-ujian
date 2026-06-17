@@ -8,6 +8,7 @@ import {
   getPredikatLabel,
   getPredikatColor,
   formatDateOnly,
+  formatTahsinLevels,
   cn,
 } from '@/lib/utils'
 import { BookOpen, Clipboard, UserCheck, CalendarDays } from 'lucide-react'
@@ -69,7 +70,7 @@ export function RiwayatClient({ tahfidz, tahsin, month, year }: Props) {
         nama: t.nama_kelompok,
         jadwal: t.jadwal,
         jenis: 'Tahsin' as const,
-        detail: `${t.level} · ${t.siswa.length} siswa · Sesi ${t.sesi}`,
+        detail: `${formatTahsinLevels(t)} · ${t.siswa.length} siswa · Sesi ${t.sesi}`,
         hasil: (
           <span className="text-emerald-700 font-semibold">
             {lulus}/{t.siswa.length} lulus
