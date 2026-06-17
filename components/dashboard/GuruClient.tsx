@@ -32,6 +32,8 @@ import {
   KeyRound,
   BookOpen,
   Clipboard,
+  Users,
+  ClipboardCheck,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { useRouter } from 'next/navigation'
@@ -116,19 +118,20 @@ export function GuruClient({ guruList: initial, pengujis, unit, isAdmin }: Props
       {/* Tab switch */}
       <div className="flex gap-2">
         {([
-          { value: 'guru', label: 'Akun Guru' },
-          { value: 'penguji', label: 'Daftar Penguji' },
+          { value: 'guru', label: 'Akun Guru', icon: Users },
+          { value: 'penguji', label: 'Daftar Penguji', icon: ClipboardCheck },
         ] as const).map((tab) => (
           <button
             key={tab.value}
             onClick={() => setActiveTab(tab.value)}
             className={
-              'flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all ' +
+              'flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-semibold transition-all ' +
               (activeTab === tab.value
                 ? 'bg-violet-600 text-white shadow-sm'
                 : 'bg-white text-gray-500 border border-gray-200 hover:border-gray-300')
             }
           >
+            <tab.icon className="w-4 h-4" />
             {tab.label}
           </button>
         ))}
