@@ -36,6 +36,12 @@ export function EditTahsinModal({ item, pengujiOptions, onClose }: Props) {
     )
   }
 
+  // Keluarkan siswa yang belum ujian dari pengajuan (mis. tidak hadir).
+  // Perubahan baru tersimpan saat tombol Simpan ditekan.
+  function removeSiswa(index: number) {
+    setSiswa((prev) => prev.filter((_, i) => i !== index))
+  }
+
   // Kelompokkan siswa per level untuk tampilan, tapi simpan indeks aslinya
   // agar perubahan predikat tetap menulis ke array `siswa` yang flat.
   const groupedSiswa = useMemo(() => {
@@ -239,6 +245,16 @@ export function EditTahsinModal({ item, pengujiOptions, onClose }: Props) {
                           <option value="lulus">Lulus</option>
                           <option value="mengulang">Mengulang</option>
                         </select>
+                        {s.predikat === null && siswa.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeSiswa(index)}
+                            title="Keluarkan siswa ini (belum ujian)"
+                            className="p-1.5 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
